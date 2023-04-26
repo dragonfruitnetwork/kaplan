@@ -9,9 +9,44 @@
         Title="DragonFruit Kaplan">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
+    <Window.Content>
+        <DockPanel>
+            <!-- control bar -->
+            <DockPanel DockPanel.Dock="Bottom" Margin="10">
+                <TextBlock VerticalAlignment="Center" Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected}"/>
+                
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}"/>
+                    <Button Content="Clear Selection" Command="{Binding ClearSelection}"/>
+                    <Button Content="Remove Packages" Background="Red" Command="{Binding RemovePackages}"/>
+                </StackPanel>
+            </DockPanel>
+            
+            <!-- searchbar -->
+            <DockPanel DockPanel.Dock="Top" Margin="10">
+                <Button DockPanel.Dock="Right" Content="Refresh Packages" VerticalAlignment="Stretch" Command="{Binding RefreshPackages}"/>
+                <TextBox DockPanel.Dock="Left" Margin="0,0,10,0" Watermark="Enter search query..." Text="{Binding SearchQuery}"/>
+            </DockPanel>
+            
+            <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}" SelectedItems="{Binding SelectedPackages}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Height="55">
+                            <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center" Source="{Binding Logo}"/>
+                            <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
+                                <TextBlock DockPanel.Dock="Top" FontSize="18" TextTrimming="CharacterEllipsis" Text="{Binding Name}"/>
+                            
+                                <!-- additional package info -->
+                                <TextBlock DockPanel.Dock="Top" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding Publisher}" Margin="0,2,0,0" />
+                                <TextBlock DockPanel.Dock="Top" FontSize="10" TextTrimming="CharacterEllipsis" Text="{Binding Id}" Foreground="DimGray"/>
+                            </DockPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Window.Content>
 </Window>
