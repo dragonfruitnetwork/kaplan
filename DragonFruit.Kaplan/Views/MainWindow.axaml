@@ -16,18 +16,18 @@
         <DockPanel>
             <!-- control bar -->
             <DockPanel DockPanel.Dock="Bottom" Margin="10">
-                <TextBlock VerticalAlignment="Center" Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected}"/>
+                <TextBlock VerticalAlignment="Center" Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}"/>
                 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}"/>
-                    <Button Content="Clear Selection" Command="{Binding ClearSelection}"/>
-                    <Button Content="Remove Packages" Background="Red" Command="{Binding RemovePackages}"/>
+                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}" Classes="Outline"/>
+                    <Button Content="Clear Selection" Command="{Binding ClearSelection}" Classes="Dark Outline"/>
+                    <Button Content="Remove Packages" Command="{Binding RemovePackages}" Classes="Accent"/>
                 </StackPanel>
             </DockPanel>
             
             <!-- searchbar -->
             <DockPanel DockPanel.Dock="Top" Margin="10">
-                <Button DockPanel.Dock="Right" Content="Refresh Packages" VerticalAlignment="Stretch" Command="{Binding RefreshPackages}"/>
+                <Button DockPanel.Dock="Right" Content="Refresh" Classes="Flat" VerticalAlignment="Stretch" Command="{Binding RefreshPackages}"/>
                 <TextBox DockPanel.Dock="Left" Margin="0,0,10,0" Watermark="Enter search query..." Text="{Binding SearchQuery}"/>
             </DockPanel>
             
