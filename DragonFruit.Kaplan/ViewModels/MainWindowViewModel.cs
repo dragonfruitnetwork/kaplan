@@ -6,25 +6,24 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Security.Principal;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.ViewModels
 {
-    public class MainWindowViewModel : ReactiveObject
+    public class MainWindowViewModel : ReactiveObject, IDisposable
     {
         private readonly PackageManager _packageManager;
-
+        private readonly IDisposable _packageRefreshListener;
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
-        private string _searchQuery = string.Empty;
         private bool _showUserPackages;
-
+        private string _searchQuery = string.Empty;
         private IReadOnlyCollection<PackageViewModel> _discoveredPackages = Array.Empty<PackageViewModel>();
 
         public MainWindowViewModel()
@@ -47,11 +46,13 @@ namespace DragonFruit.Kaplan.ViewModels
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
                 .ToProperty(this, x => x.DisplayedPackages);
 
+            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());            
+            
             // create commands
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
             SelectStubPackages = ReactiveCommand.Create(SelectStubPackagesImpl, stubsPresentInCurrentList);
-            RemovePackages = ReactiveCommand.Create(() => MessageBox.Show("Removal Time!"), packagesSelected);
+            RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
 
             // auto refresh the package list if the user package filter switch is changed 
             // this needs the additional select to allow command invoking to work (see https://stackoverflow.com/a/54936685)
@@ -122,6 +123,17 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             SelectedPackages.Clear();
             SelectedPackages.AddRange(DisplayedPackages.Where(x => x.Package.IsStub).Union(SelectedPackages));
+        }
+        
+        private void RemovePackagesImpl()
+        {
+            MessageBus.Current.SendMessage(new UninstallEventArgs(SelectedPackages.Select(x => x.Package)));
+        }
+
+        public void Dispose()
+        {
+            _displayedPackages?.Dispose();
+            _packageRefreshListener?.Dispose();
         }
     }
 }

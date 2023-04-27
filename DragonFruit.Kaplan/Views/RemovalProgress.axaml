@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Height="150" Width="600" CanResize="False"
+        x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
+        x:DataType="vm:RemovalProgressViewModel"
+        Title="Remove Packages">
+
+    <Design.DataContext>
+        <vm:RemovalProgressViewModel />
+    </Design.DataContext>
+
+    <Window.Content>
+        <Grid Margin="50,40" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="15"/> <!-- spacing -->
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="15"/> <!-- spacing -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Image DockPanel.Dock="Left" Source="{Binding CurrentPackage.Logo}" Height="40" Width="40" />
+            
+            <ProgressBar Grid.Row="0" Grid.Column="2" 
+                         Height="15" Minimum="0" Background="LightGray"
+                         Maximum="{Binding Packages.Count}"
+                         Foreground="{Binding ProgressColor}"
+                         Value="{Binding CurrentPackageNumber}" />
+            
+            <!-- this will be resolved in avalonia 0.11 - see https://github.com/AvaloniaUI/Avalonia/pull/6953 -->
+            <StackPanel Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Orientation="Horizontal">
+                <TextBlock Text="Removing Package "/>
+                <TextBlock Text="{Binding CurrentPackageNumber}"/>
+                <TextBlock Text="/"/>
+                <TextBlock Text="{Binding Packages.Count}"/>
+                <TextBlock Text=": "/>
+                <TextBlock Text="{Binding CurrentPackage.Name}"/>
+            </StackPanel>
+            
+            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
+                    VerticalAlignment="Center" Classes="Accent Flat" Content="Cancel"
+                    Command="{Binding RequestCancellation}"/>
+        </Grid>
+    </Window.Content>
+</Window>
