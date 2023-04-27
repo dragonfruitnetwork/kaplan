@@ -6,11 +6,7 @@
         <TargetFramework>net7.0-windows10.0.19041</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
-
-    <ItemGroup>
-        <AvaloniaResource Include="Assets\**" />
-    </ItemGroup>
-
+    
     <ItemGroup>
         <TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
     </ItemGroup>
@@ -25,12 +21,5 @@
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.18" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Views\RemovalProgress.axaml.cs">
-        <DependentUpon>RemovalProgress.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
 </Project>
