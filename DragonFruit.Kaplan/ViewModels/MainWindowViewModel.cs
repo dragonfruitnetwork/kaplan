@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using DragonFruit.Kaplan.ViewModels.Enums;
 using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
 using DynamicData.Binding;
@@ -18,17 +19,23 @@ namespace DragonFruit.Kaplan.ViewModels
 {
     public class MainWindowViewModel : ReactiveObject, IDisposable
     {
+        private readonly WindowsIdentity _currentUser;
         private readonly PackageManager _packageManager;
         private readonly IDisposable _packageRefreshListener;
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
-        private bool _showUserPackages;
         private string _searchQuery = string.Empty;
+        private PackageInstallationMode _packageMode = PackageInstallationMode.User;
         private IReadOnlyCollection<PackageViewModel> _discoveredPackages = Array.Empty<PackageViewModel>();
 
         public MainWindowViewModel()
         {
             _packageManager = new PackageManager();
+
+            _currentUser = WindowsIdentity.GetCurrent();
+            AvailablePackageModes = _currentUser.User != null
+                ? Enum.GetValues<PackageInstallationMode>()
+                : new[] { PackageInstallationMode.Machine };
 
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet(x => x)
@@ -46,20 +53,24 @@ namespace DragonFruit.Kaplan.ViewModels
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
                 .ToProperty(this, x => x.DisplayedPackages);
 
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
+            _packageRefreshListener =
+                MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
 
             // create commands
-            ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
-            RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
             SelectStubPackages = ReactiveCommand.Create(SelectStubPackagesImpl, stubsPresentInCurrentList);
+            RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
+            ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
 
             // auto refresh the package list if the user package filter switch is changed 
             // this needs the additional select to allow command invoking to work (see https://stackoverflow.com/a/54936685)
-            this.WhenValueChanged(x => x.ShowUserPackages)
-                .Select(_ => Unit.Default)
-                .InvokeCommand(this, x => x.RefreshPackages);
+            this.WhenValueChanged(x => x.PackageMode)
+                .Subscribe(_ => RefreshPackagesImpl());
         }
+
+        public IEnumerable<PackageInstallationMode> AvailablePackageModes { get; }
+
+        public ObservableCollection<PackageViewModel> SelectedPackages { get; } = new();
 
         public IEnumerable<PackageViewModel> DisplayedPackages => _displayedPackages.Value;
 
@@ -70,17 +81,12 @@ namespace DragonFruit.Kaplan.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets 
-        /// </summary>
-        public ObservableCollection<PackageViewModel> SelectedPackages { get; } = new();
-
-        /// <summary>
         /// Gets or sets whether the <see cref="DiscoveredPackages"/> collection should show packages installed for the selected user
         /// </summary>
-        public bool ShowUserPackages
+        public PackageInstallationMode PackageMode
         {
-            get => _showUserPackages;
-            set => this.RaiseAndSetIfChanged(ref _showUserPackages, value);
+            get => _packageMode;
+            set => this.RaiseAndSetIfChanged(ref _packageMode, value);
         }
 
         /// <summary>
@@ -101,14 +107,18 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             IEnumerable<Package> packages;
 
-            if (ShowUserPackages)
+            switch (PackageMode)
             {
-                var user = WindowsIdentity.GetCurrent().User.Value;
-                packages = _packageManager.FindPackagesForUser(user);
-            }
-            else
-            {
-                packages = _packageManager.FindPackages();
+                case PackageInstallationMode.User when _currentUser.User != null:
+                    packages = _packageManager.FindPackagesForUser(_currentUser.User.Value);
+                    break;
+
+                case PackageInstallationMode.Machine:
+                    packages = _packageManager.FindPackages();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             SearchQuery = string.Empty;

@@ -28,7 +28,9 @@
             <!-- searchbar -->
             <DockPanel DockPanel.Dock="Top" Margin="10">
                 <Button DockPanel.Dock="Right" Content="Refresh" VerticalAlignment="Stretch" Command="{Binding RefreshPackages}"/>
-                <TextBox DockPanel.Dock="Left" Margin="0,0,10,0" Watermark="Enter search query..." Text="{Binding SearchQuery}"/>
+                
+                <ComboBox DockPanel.Dock="Left" Items="{Binding AvailablePackageModes}" SelectedItem="{Binding PackageMode}"/>
+                <TextBox DockPanel.Dock="Left" Margin="10, 0" Watermark="Enter search query..." Text="{Binding SearchQuery}"/>
             </DockPanel>
             
             <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}" SelectedItems="{Binding SelectedPackages}">
