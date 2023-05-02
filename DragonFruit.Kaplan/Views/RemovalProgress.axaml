@@ -3,7 +3,7 @@
         xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" Height="150" Width="600" CanResize="False"
+        mc:Ignorable="d" Height="100" Width="500" CanResize="False"
         x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
         x:DataType="vm:RemovalProgressViewModel"
         Title="Remove Packages">
@@ -13,7 +13,7 @@
     </Design.DataContext>
 
     <Window.Content>
-        <Grid Margin="50,40" VerticalAlignment="Center">
+        <Grid Margin="25,20" VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>

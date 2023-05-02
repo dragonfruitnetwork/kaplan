@@ -14,11 +14,11 @@ using ReactiveUI;
 
 namespace DragonFruit.Kaplan.ViewModels
 {
-    public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad
+    public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad, ICanCloseWindow
     {
         private readonly AsyncLock _lock = new();
         private readonly ObservableAsPropertyHelper<ISolidColorBrush> _progressColor;
-        
+
         private int _currentPackageNumber;
         private bool _cancellationRequested;
         private PackageViewModel _currentPackage;
@@ -31,18 +31,21 @@ namespace DragonFruit.Kaplan.ViewModels
             _progressColor = this.WhenValueChanged(x => x.Status).Select(x => x switch
             {
                 OperationState.Pending => Brushes.Gray,
-                OperationState.Running => Brushes.Green,
+                OperationState.Running => Brushes.DodgerBlue,
                 OperationState.Errored => Brushes.Red,
-                OperationState.Completed => Brushes.DodgerBlue,
+                OperationState.Completed => Brushes.Green,
                 OperationState.Canceled => Brushes.DarkGray,
 
                 _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
             }).ToProperty(this, x => x.ProgressColor);
 
-            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x=> x.Status).Select(x => !x.Item1 && x.Item2 == OperationState.Running);
-            
+            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status)
+                .Select(x => !x.Item1 && x.Item2 == OperationState.Running);
+
             RequestCancellation = ReactiveCommand.Create(() => CancellationRequested = true, canCancelOperation);
         }
+
+        public event Action CloseRequested;
 
         public OperationState Status
         {
@@ -55,7 +58,7 @@ namespace DragonFruit.Kaplan.ViewModels
             get => _cancellationRequested;
             private set => this.RaiseAndSetIfChanged(ref _cancellationRequested, value);
         }
-        
+
         public PackageViewModel CurrentPackage
         {
             get => _currentPackage;
@@ -71,9 +74,9 @@ namespace DragonFruit.Kaplan.ViewModels
         public ISolidColorBrush ProgressColor => _progressColor.Value;
 
         public IReadOnlyList<PackageViewModel> Packages { get; }
-        
+
         public ICommand RequestCancellation { get; }
-        
+
         void IHandlesClosingEvent.OnClose(CancelEventArgs args)
         {
             args.Cancel = Status == OperationState.Running;
@@ -92,24 +95,30 @@ namespace DragonFruit.Kaplan.ViewModels
                     {
                         break;
                     }
-                    
+
                     CurrentPackageNumber = i + 1;
-                    var package = CurrentPackage = Packages[i];
+                    CurrentPackage = Packages[i];
                     
-                    var removalTask = Task.Delay(5000);
-                    // var removalTask = manager.RemovePackageAsync(package.Package.Id.FullName);
-
-                    await removalTask;
-
-                    // if there's an error, stop and report a failure
-                    if (removalTask.Status == TaskStatus.Faulted)
+#if DRY_RUN
+                    await Task.Delay(1000);
+#else
+                    try
                     {
+                        await manager.RemovePackageAsync(CurrentPackage.Package.Id.FullName);
+                    }
+                    catch
+                    {
+                        // todo log error
                         Status = OperationState.Errored;
                         break;
                     }
+#endif
                 }
 
                 Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
+
+                await Task.Delay(2000).ConfigureAwait(false);
+                CloseRequested?.Invoke();
             }
         }
     }

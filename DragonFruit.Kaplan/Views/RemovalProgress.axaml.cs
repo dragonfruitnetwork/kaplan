@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using DragonFruit.Kaplan.ViewModels;
 
 namespace DragonFruit.Kaplan.Views
@@ -15,6 +16,11 @@ namespace DragonFruit.Kaplan.Views
         protected override void OnOpened(EventArgs e)
         {
             (DataContext as IExecutesTaskPostLoad)?.Perform();
+
+            if (DataContext is ICanCloseWindow windowCloser)
+            {
+                windowCloser.CloseRequested += () => Dispatcher.UIThread.InvokeAsync(Close);
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
