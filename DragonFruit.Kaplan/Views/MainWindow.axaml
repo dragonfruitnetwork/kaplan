@@ -19,9 +19,9 @@
                 <TextBlock VerticalAlignment="Center" Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}"/>
                 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}" Classes="Outline"/>
-                    <Button Content="Clear Selection" Command="{Binding ClearSelection}" Classes="Dark Outline"/>
-                    <Button Content="Remove Packages" Command="{Binding RemovePackages}" Classes="Accent"/>
+                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}" />
+                    <Button Content="Clear Selection" Command="{Binding ClearSelection}" />
+                    <Button Content="Remove Packages" Command="{Binding RemovePackages}" />
                 </StackPanel>
             </DockPanel>
             
