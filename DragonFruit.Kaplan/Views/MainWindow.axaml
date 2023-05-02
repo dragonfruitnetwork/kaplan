@@ -34,7 +34,7 @@
             <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}" SelectedItems="{Binding SelectedPackages}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <DockPanel Height="65">
+                        <DockPanel Margin="5,10">
                             <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center" Source="{Binding Logo}"/>
                             <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
                                 <TextBlock DockPanel.Dock="Top" FontSize="18" TextTrimming="CharacterEllipsis" Text="{Binding Name}"/>

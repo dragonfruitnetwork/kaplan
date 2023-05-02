@@ -117,7 +117,7 @@ namespace DragonFruit.Kaplan.ViewModels
 
                 Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
 
-                await Task.Delay(2000).ConfigureAwait(false);
+                await Task.Delay(1000).ConfigureAwait(false);
                 CloseRequested?.Invoke();
             }
         }
