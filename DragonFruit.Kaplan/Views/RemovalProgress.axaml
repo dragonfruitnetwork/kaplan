@@ -29,7 +29,7 @@
             <Image DockPanel.Dock="Left" Source="{Binding CurrentPackage.Logo}" Height="40" Width="40" />
             
             <ProgressBar Grid.Row="0" Grid.Column="2" 
-                         Height="15" Minimum="0" Background="LightGray"
+                         Minimum="0" Background="LightGray"
                          Maximum="{Binding Packages.Count}"
                          Foreground="{Binding ProgressColor}"
                          Value="{Binding CurrentPackageNumber}" />
