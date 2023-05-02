@@ -8,6 +8,8 @@ using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Avalonia.Media;
+using DragonFruit.Kaplan.ViewModels.Enums;
+using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData.Binding;
 using Nito.AsyncEx;
 using ReactiveUI;
@@ -17,6 +19,7 @@ namespace DragonFruit.Kaplan.ViewModels
     public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad, ICanCloseWindow
     {
         private readonly AsyncLock _lock = new();
+        private readonly PackageInstallationMode _mode;
         private readonly ObservableAsPropertyHelper<ISolidColorBrush> _progressColor;
 
         private int _currentPackageNumber;
@@ -24,10 +27,9 @@ namespace DragonFruit.Kaplan.ViewModels
         private PackageViewModel _currentPackage;
         private OperationState _status = OperationState.Pending;
 
-        public RemovalProgressViewModel(IEnumerable<Package> packages)
+        public RemovalProgressViewModel(IEnumerable<Package> packages, PackageInstallationMode mode)
         {
-            Packages = packages.Select(x => new PackageViewModel(x)).ToList();
-
+            _mode = mode;
             _progressColor = this.WhenValueChanged(x => x.Status).Select(x => x switch
             {
                 OperationState.Pending => Brushes.Gray,
@@ -39,9 +41,9 @@ namespace DragonFruit.Kaplan.ViewModels
                 _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
             }).ToProperty(this, x => x.ProgressColor);
 
-            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status)
-                .Select(x => !x.Item1 && x.Item2 == OperationState.Running);
+            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status).Select(x => !x.Item1 && x.Item2 == OperationState.Running);
 
+            Packages = packages.Select(x => new PackageViewModel(x)).ToList();
             RequestCancellation = ReactiveCommand.Create(() => CancellationRequested = true, canCancelOperation);
         }
 
@@ -98,13 +100,14 @@ namespace DragonFruit.Kaplan.ViewModels
 
                     CurrentPackageNumber = i + 1;
                     CurrentPackage = Packages[i];
-                    
+
 #if DRY_RUN
                     await Task.Delay(1000);
 #else
                     try
                     {
-                        await manager.RemovePackageAsync(CurrentPackage.Package.Id.FullName);
+                        var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
+                        await manager.RemovePackageAsync(CurrentPackage.Package.Id.FullName, options);
                     }
                     catch
                     {
@@ -115,6 +118,7 @@ namespace DragonFruit.Kaplan.ViewModels
 #endif
                 }
 
+                MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
                 Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
 
                 await Task.Delay(1000).ConfigureAwait(false);

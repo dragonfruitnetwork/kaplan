@@ -22,6 +22,7 @@ namespace DragonFruit.Kaplan.ViewModels
         private readonly WindowsIdentity _currentUser;
         private readonly PackageManager _packageManager;
         private readonly IDisposable _packageRefreshListener;
+
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
         private string _searchQuery = string.Empty;
@@ -31,8 +32,8 @@ namespace DragonFruit.Kaplan.ViewModels
         public MainWindowViewModel()
         {
             _packageManager = new PackageManager();
-
             _currentUser = WindowsIdentity.GetCurrent();
+            
             AvailablePackageModes = _currentUser.User != null
                 ? Enum.GetValues<PackageInstallationMode>()
                 : new[] { PackageInstallationMode.Machine };
@@ -53,8 +54,7 @@ namespace DragonFruit.Kaplan.ViewModels
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
                 .ToProperty(this, x => x.DisplayedPackages);
 
-            _packageRefreshListener =
-                MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
+            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
 
             // create commands
             SelectStubPackages = ReactiveCommand.Create(SelectStubPackagesImpl, stubsPresentInCurrentList);
@@ -77,7 +77,7 @@ namespace DragonFruit.Kaplan.ViewModels
         public IReadOnlyCollection<PackageViewModel> DiscoveredPackages
         {
             get => _discoveredPackages;
-            set => this.RaiseAndSetIfChanged(ref _discoveredPackages, value);
+            private set => this.RaiseAndSetIfChanged(ref _discoveredPackages, value);
         }
 
         /// <summary>
@@ -127,8 +127,10 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ToList();
 
             // ensure the ui doesn't have non-existent packages nominated through an intersection
+            var newPackages = SelectedPackages.IntersectBy(DiscoveredPackages.Select(x => x.Id), x => x.Id);
+
             SelectedPackages.Clear();
-            SelectedPackages.AddRange(SelectedPackages.IntersectBy(DiscoveredPackages.Select(x => x.Id), x => x.Id));
+            SelectedPackages.AddRange(newPackages);
         }
 
         private void SelectStubPackagesImpl()
@@ -139,7 +141,8 @@ namespace DragonFruit.Kaplan.ViewModels
 
         private void RemovePackagesImpl()
         {
-            MessageBus.Current.SendMessage(new UninstallEventArgs(SelectedPackages.Select(x => x.Package)));
+            var args = new UninstallEventArgs(SelectedPackages.Select(x => x.Package), PackageMode);
+            MessageBus.Current.SendMessage(args);
         }
 
         public void Dispose()

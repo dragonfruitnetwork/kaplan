@@ -28,7 +28,7 @@ namespace DragonFruit.Kaplan.Views
         {
             var window = new RemovalProgress
             {
-                DataContext = new RemovalProgressViewModel(args.Packages)
+                DataContext = new RemovalProgressViewModel(args.Packages, args.Mode)
             };
 
             window.ShowDialog(this);
