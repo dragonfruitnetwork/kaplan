@@ -40,14 +40,14 @@ namespace DragonFruit.Kaplan.ViewModels
             var stubsPresentInCurrentList = this.WhenValueChanged(x => x.DisplayedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(x => x.Any(y => y.Package.IsStub));
-            
+
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
                 .ToProperty(this, x => x.DisplayedPackages);
 
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());            
-            
+            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
+
             // create commands
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
@@ -112,7 +112,9 @@ namespace DragonFruit.Kaplan.ViewModels
             }
 
             SearchQuery = string.Empty;
-            DiscoveredPackages = packages.Where(x => x.SignatureKind != PackageSignatureKind.System).Select(x => new PackageViewModel(x)).ToList();
+            DiscoveredPackages = packages.Where(x => x.SignatureKind != PackageSignatureKind.System)
+                .Select(x => new PackageViewModel(x))
+                .ToList();
 
             // ensure the ui doesn't have non-existent packages nominated through an intersection
             SelectedPackages.Clear();
@@ -124,7 +126,7 @@ namespace DragonFruit.Kaplan.ViewModels
             SelectedPackages.Clear();
             SelectedPackages.AddRange(DisplayedPackages.Where(x => x.Package.IsStub).Union(SelectedPackages));
         }
-        
+
         private void RemovePackagesImpl()
         {
             MessageBus.Current.SendMessage(new UninstallEventArgs(SelectedPackages.Select(x => x.Package)));

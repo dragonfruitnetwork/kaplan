@@ -44,8 +44,11 @@
                 <TextBlock Text="{Binding CurrentPackage.Name}"/>
             </StackPanel>
             
-            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
-                    VerticalAlignment="Center" Classes="Accent Flat" Content="Cancel"
+            <Button Grid.Row="0"
+                    Grid.Column="4"
+                    DockPanel.Dock="Right"
+                    Content="Cancel"
+                    VerticalAlignment="Center"
                     Command="{Binding RequestCancellation}"/>
         </Grid>
     </Window.Content>
