@@ -3,10 +3,14 @@
         xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" Height="100" Width="500" CanResize="False"
+        mc:Ignorable="d"
         x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
         x:DataType="vm:RemovalProgressViewModel"
-        Title="Remove Packages">
+        Width="500"
+        Height="100"
+        CanResize="False"
+        Title="Remove Packages"
+        WindowStartupLocation="CenterOwner">
 
     <Design.DataContext>
         <vm:RemovalProgressViewModel />
