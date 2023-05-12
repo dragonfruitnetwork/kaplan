@@ -1,0 +1,27 @@
+name: Quality
+on: [ pull_request, push ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2    
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.x"
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.0.x"
+
+      - name: Restore Project/Tools
+        run: |
+          dotnet restore
+          dotnet tool install --global NVika
+          dotnet tool install --global JetBrains.ReSharper.GlobalTools
+
+      - name: InspectCode
+        run: dotnet jb inspectcode DragonFruit.Kaplan.sln --output=inspectcodereport.xml --verbosity=WARN --no-build
+
+      - name: Vika
+        run: dotnet nvika parsereport "${{github.workspace}}/inspectcodereport.xml"
