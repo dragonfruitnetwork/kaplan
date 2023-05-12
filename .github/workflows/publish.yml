@@ -28,7 +28,7 @@ jobs:
         run: mkdir ${{ env.build-output }}
 
       - name: Publish
-        run: dotnet publish --self-contained -c Release -o ${{ env.build-output }} -p:PublishTrimmed=true -p:PublishSingleFile=true -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+        run: dotnet publish --self-contained -c Release -r win-x64 -o ${{ env.build-output }} -p:PublishTrimmed=true -p:PublishSingleFile=true -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
 
       - name: Upload
         uses: softprops/action-gh-release@v1
