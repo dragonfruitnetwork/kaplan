@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Platforms>AnyCPU</Platforms>
+        <TrimMode>copyused</TrimMode>
         <OutputType>WinExe</OutputType>
+        <PublishTrimmed>true</PublishTrimmed>
         <Configurations>Debug;Release;DryRun</Configurations>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>

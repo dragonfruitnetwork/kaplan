@@ -1,0 +1,36 @@
+name: Publish
+
+on:
+  release:
+    types: [ published ]
+
+env:
+  build-output: build-output
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "7.0.x"
+
+      - name: NuGet Restore
+        run: |
+          dotnet restore
+          dotnet tool install --global dotnet-project-licenses
+
+      - name: Generate Package License Table
+        run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -o --output-directory DragonFruit.Kaplan --outfile licenses.md --include-project-file --md --unique
+
+      - name: Create output directory
+        run: mkdir ${{ env.build-output }}
+
+      - name: Publish
+        run: dotnet publish --self-contained -c Release -o ${{ env.build-output }} -p:PublishTrimmed=true -p:PublishSingleFile=true -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+
+      - name: Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.build-output }}/DragonFruit.Kaplan.exe
