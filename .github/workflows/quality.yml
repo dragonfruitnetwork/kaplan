@@ -21,7 +21,7 @@ jobs:
           dotnet tool install --global JetBrains.ReSharper.GlobalTools
 
       - name: InspectCode
-        run: dotnet jb inspectcode DragonFruit.Kaplan.sln --output=inspectcodereport.xml --verbosity=WARN --no-build
+        run: jb inspectcode DragonFruit.Kaplan.sln --output=inspectcodereport.xml --verbosity=WARN --no-build
 
       - name: Vika
-        run: dotnet nvika parsereport "${{github.workspace}}/inspectcodereport.xml"
+        run: nvika parsereport "${{github.workspace}}/inspectcodereport.xml"
