@@ -107,6 +107,8 @@ namespace DragonFruit.Kaplan.ViewModels
                     try
                     {
                         var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
+                        
+                        // todo split into task, progress updater and cancellation support
                         await manager.RemovePackageAsync(CurrentPackage.Package.Id.FullName, options);
                     }
                     catch
