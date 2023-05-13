@@ -28,12 +28,9 @@ jobs:
         run: mkdir ${{ env.build-output }}
 
       - name: Publish
-        run: dotnet publish --self-contained -c Release -r win-x64 -o ${{ env.build-output }} -p:PublishTrimmed=true -p:PublishSingleFile=false -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
-
-      - name: Compress
-        run: Compress-Archive -Path ${{ env.build-output }} -Destination kaplan.zip
+        run: dotnet publish --self-contained -c Release -r win-x64 -o ${{ env.build-output }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
 
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
-          files: kaplan.zip
+          files: ${{ env.build-output }}\DragonFruit.Kaplan.exe
