@@ -8,7 +8,7 @@
         <TargetFramework>net7.0-windows10.0.19041</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 
-        <DefineConstants Condition="'$(Configuration)' == 'DryRun'">$(Constants);DRY_RUN</DefineConstants>
+        <DefineConstants Condition="'$(Configuration)' != 'Release'">$(Constants);DRY_RUN</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup>
