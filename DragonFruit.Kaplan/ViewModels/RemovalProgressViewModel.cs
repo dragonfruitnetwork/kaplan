@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
@@ -20,16 +21,17 @@ namespace DragonFruit.Kaplan.ViewModels
     {
         private readonly AsyncLock _lock = new();
         private readonly PackageInstallationMode _mode;
+        private readonly CancellationTokenSource _cancellation = new();
         private readonly ObservableAsPropertyHelper<ISolidColorBrush> _progressColor;
 
+        private OperationState _status;
         private int _currentPackageNumber;
-        private bool _cancellationRequested;
-        private PackageViewModel _currentPackage;
-        private OperationState _status = OperationState.Pending;
+        private PackageRemovalTask _current;
 
         public RemovalProgressViewModel(IEnumerable<Package> packages, PackageInstallationMode mode)
         {
             _mode = mode;
+            _status = OperationState.Pending;
             _progressColor = this.WhenValueChanged(x => x.Status).Select(x => x switch
             {
                 OperationState.Pending => Brushes.Gray,
@@ -41,30 +43,19 @@ namespace DragonFruit.Kaplan.ViewModels
                 _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
             }).ToProperty(this, x => x.ProgressColor);
 
-            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status).Select(x => !x.Item1 && x.Item2 == OperationState.Running);
+            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status)
+                .Select(x => !x.Item1 && x.Item2 == OperationState.Running);
 
-            Packages = packages.Select(x => new PackageViewModel(x)).ToList();
-            RequestCancellation = ReactiveCommand.Create(() => CancellationRequested = true, canCancelOperation);
+            Packages = packages.ToList();
+            RequestCancellation = ReactiveCommand.Create(CancelOperation, canCancelOperation);
         }
 
         public event Action CloseRequested;
 
-        public OperationState Status
+        public PackageRemovalTask Current
         {
-            get => _status;
-            private set => this.RaiseAndSetIfChanged(ref _status, value);
-        }
-
-        public bool CancellationRequested
-        {
-            get => _cancellationRequested;
-            private set => this.RaiseAndSetIfChanged(ref _cancellationRequested, value);
-        }
-
-        public PackageViewModel CurrentPackage
-        {
-            get => _currentPackage;
-            private set => this.RaiseAndSetIfChanged(ref _currentPackage, value);
+            get => _current;
+            private set => this.RaiseAndSetIfChanged(ref _current, value);
         }
 
         public int CurrentPackageNumber
@@ -73,11 +64,25 @@ namespace DragonFruit.Kaplan.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _currentPackageNumber, value);
         }
 
+        private OperationState Status
+        {
+            get => _status;
+            set => this.RaiseAndSetIfChanged(ref _status, value);
+        }
+
+        public bool CancellationRequested => _cancellation.IsCancellationRequested;
+
         public ISolidColorBrush ProgressColor => _progressColor.Value;
 
-        public IReadOnlyList<PackageViewModel> Packages { get; }
+        public IReadOnlyList<Package> Packages { get; }
 
         public ICommand RequestCancellation { get; }
+
+        private void CancelOperation()
+        {
+            _cancellation.Cancel();
+            this.RaisePropertyChanged(nameof(CancellationRequested));
+        }
 
         void IHandlesClosingEvent.OnClose(CancelEventArgs args)
         {
@@ -86,9 +91,10 @@ namespace DragonFruit.Kaplan.ViewModels
 
         async Task IExecutesTaskPostLoad.Perform()
         {
-            using (await _lock.LockAsync().ConfigureAwait(false))
+            using (await _lock.LockAsync(_cancellation.Token).ConfigureAwait(false))
             {
                 Status = OperationState.Running;
+
                 var manager = new PackageManager();
 
                 for (var i = 0; i < Packages.Count; i++)
@@ -99,17 +105,18 @@ namespace DragonFruit.Kaplan.ViewModels
                     }
 
                     CurrentPackageNumber = i + 1;
-                    CurrentPackage = Packages[i];
+                    Current = new PackageRemovalTask(manager, Packages[i], _mode);
 
-#if DRY_RUN
-                    await Task.Delay(1000);
-#else
                     try
                     {
-                        var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
-                        
-                        // todo split into task, progress updater and cancellation support
-                        await manager.RemovePackageAsync(CurrentPackage.Package.Id.FullName, options);
+#if DRY_RUN
+                        await Task.Delay(1000, _cancellation.Token);
+#else
+                        await Current.RemoveAsync(_cancellation.Token).ConfigureAwait(false);
+#endif
+                    }
+                    catch (OperationCanceledException)
+                    {
                     }
                     catch
                     {
@@ -117,18 +124,17 @@ namespace DragonFruit.Kaplan.ViewModels
                         Status = OperationState.Errored;
                         break;
                     }
-#endif
                 }
-
-                MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
-                Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
-
-                await Task.Delay(1000).ConfigureAwait(false);
-                CloseRequested?.Invoke();
             }
+
+            Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
+            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+
+            await Task.Delay(1000).ConfigureAwait(false);
+            CloseRequested?.Invoke();
         }
     }
-
+    
     public enum OperationState
     {
         Pending,

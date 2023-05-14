@@ -30,7 +30,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <Image DockPanel.Dock="Left" Source="{Binding CurrentPackage.Logo}" Height="40" Width="40" />
+            <Image DockPanel.Dock="Left" Source="{Binding Current.Package.Logo}" Height="40" Width="40" />
             
             <ProgressBar Grid.Row="0" Grid.Column="2" 
                          Minimum="0" Background="LightGray"
@@ -38,22 +38,8 @@
                          Foreground="{Binding ProgressColor}"
                          Value="{Binding CurrentPackageNumber}" />
             
-            <!-- this will be resolved in avalonia 0.11 - see https://github.com/AvaloniaUI/Avalonia/pull/6953 -->
-            <StackPanel Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Orientation="Horizontal">
-                <TextBlock Text="Removing Package "/>
-                <TextBlock Text="{Binding CurrentPackageNumber}"/>
-                <TextBlock Text="/"/>
-                <TextBlock Text="{Binding Packages.Count}"/>
-                <TextBlock Text=": "/>
-                <TextBlock Text="{Binding CurrentPackage.Name}"/>
-            </StackPanel>
-            
-            <Button Grid.Row="0"
-                    Grid.Column="4"
-                    DockPanel.Dock="Right"
-                    Content="Cancel"
-                    VerticalAlignment="Center"
-                    Command="{Binding RequestCancellation}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Text="{Binding Current.Status}"/>
+            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right" Content="Cancel" VerticalAlignment="Center" Command="{Binding RequestCancellation}"/>
         </Grid>
     </Window.Content>
 </Window>
