@@ -46,9 +46,7 @@ namespace DragonFruit.Kaplan.ViewModels
 
         public async Task RemoveAsync(CancellationToken cancellation = default)
         {
-            var options = _mode == PackageInstallationMode.Machine
-                ? RemovalOptions.RemoveForAllUsers
-                : RemovalOptions.None;
+            var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
             var currentRemovalTask = _manager.RemovePackageAsync(Package.Package.Id.FullName, options);
 
             currentRemovalTask.Progress = (_, info) => Progress = info;
