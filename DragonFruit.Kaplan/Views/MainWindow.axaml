@@ -16,34 +16,43 @@
         <DockPanel>
             <!-- control bar -->
             <DockPanel DockPanel.Dock="Bottom" Margin="10">
-                <TextBlock VerticalAlignment="Center" Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}"/>
-                
+                <TextBlock VerticalAlignment="Center"
+                           Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}" />
+
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
                     <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}" />
                     <Button Content="Clear Selection" Command="{Binding ClearSelection}" />
                     <Button Content="Remove Packages" Command="{Binding RemovePackages}" />
                 </StackPanel>
             </DockPanel>
-            
+
             <!-- searchbar -->
             <DockPanel DockPanel.Dock="Top" Margin="10">
-                <Button DockPanel.Dock="Right" Content="Refresh" VerticalAlignment="Stretch" Command="{Binding RefreshPackages}"/>
-                
-                <ComboBox DockPanel.Dock="Left" Items="{Binding AvailablePackageModes}" SelectedItem="{Binding PackageMode}"/>
-                <TextBox DockPanel.Dock="Left" Margin="10, 0" Watermark="Enter search query..." Text="{Binding SearchQuery}"/>
+                <Button DockPanel.Dock="Right" Content="Refresh" VerticalAlignment="Stretch"
+                        Command="{Binding RefreshPackages}" />
+
+                <ComboBox DockPanel.Dock="Left" Items="{Binding AvailablePackageModes}"
+                          SelectedItem="{Binding PackageMode}" />
+                <TextBox DockPanel.Dock="Left" Margin="10, 0" Watermark="Enter search query..."
+                         Text="{Binding SearchQuery}" />
             </DockPanel>
-            
-            <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}" SelectedItems="{Binding SelectedPackages}">
+
+            <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}"
+                     SelectedItems="{Binding SelectedPackages}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="5,10">
-                            <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center" Source="{Binding Logo}"/>
+                            <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
+                                   Source="{Binding Logo}" />
                             <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
-                                <TextBlock DockPanel.Dock="Top" FontSize="18" TextTrimming="CharacterEllipsis" Text="{Binding Name}"/>
-                            
+                                <TextBlock DockPanel.Dock="Top" FontSize="18" TextTrimming="CharacterEllipsis"
+                                           Text="{Binding Name}" />
+
                                 <!-- additional package info -->
-                                <TextBlock DockPanel.Dock="Top" FontSize="12" TextTrimming="CharacterEllipsis" Text="{Binding Publisher}" Margin="0,2,0,0" />
-                                <TextBlock DockPanel.Dock="Top" FontSize="10" TextTrimming="CharacterEllipsis" Text="{Binding Id}" Foreground="DimGray"/>
+                                <TextBlock DockPanel.Dock="Top" FontSize="12" TextTrimming="CharacterEllipsis"
+                                           Text="{Binding Publisher}" Margin="0,2,0,0" />
+                                <TextBlock DockPanel.Dock="Top" FontSize="10" TextTrimming="CharacterEllipsis"
+                                           Text="{Binding Id}" Foreground="DimGray" />
                             </DockPanel>
                         </DockPanel>
                     </DataTemplate>

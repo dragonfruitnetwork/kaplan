@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Kaplan Copyright (c) DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under Apache-2. Refer to the LICENSE file for more info
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -32,10 +35,10 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             _packageManager = new PackageManager();
             _currentUser = WindowsIdentity.GetCurrent();
-            
+
             AvailablePackageModes = _currentUser.User != null
                 ? Enum.GetValues<PackageInstallationMode>()
-                : new[] { PackageInstallationMode.Machine };
+                : new[] {PackageInstallationMode.Machine};
 
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet(x => x)
@@ -61,10 +64,8 @@ namespace DragonFruit.Kaplan.ViewModels
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
 
-            // auto refresh the package list if the user package filter switch is changed 
-            // this needs the additional select to allow command invoking to work (see https://stackoverflow.com/a/54936685)
-            this.WhenValueChanged(x => x.PackageMode)
-                .Subscribe(_ => RefreshPackagesImpl());
+            // auto refresh the package list if the user package filter switch is changed
+            this.WhenValueChanged(x => x.PackageMode).Subscribe(_ => RefreshPackagesImpl());
         }
 
         public IEnumerable<PackageInstallationMode> AvailablePackageModes { get; }

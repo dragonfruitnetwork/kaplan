@@ -1,3 +1,6 @@
+// Kaplan Copyright (c) DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under Apache-2. Refer to the LICENSE file for more info
+
 using System;
 using System.ComponentModel;
 using Avalonia.Controls;
@@ -12,7 +15,7 @@ namespace DragonFruit.Kaplan.Views
         {
             InitializeComponent();
         }
-        
+
         protected override void OnOpened(EventArgs e)
         {
             (DataContext as IExecutesTaskPostLoad)?.Perform();

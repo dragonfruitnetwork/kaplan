@@ -1,3 +1,6 @@
+// Kaplan Copyright (c) DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under Apache-2. Refer to the LICENSE file for more info
+
 using System;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
@@ -13,7 +16,7 @@ namespace DragonFruit.Kaplan.Views
         public MainWindow()
         {
             InitializeComponent();
-            
+
             _uninstallMessageListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(OpenProgressDialog);
         }
 
@@ -32,7 +35,7 @@ namespace DragonFruit.Kaplan.Views
             };
 
             window.ShowDialog(this);
-            
+
             MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
         }
     }

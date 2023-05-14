@@ -19,27 +19,28 @@
     <Window.Content>
         <Grid Margin="25,20" VerticalAlignment="Center">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40"/>
-                <ColumnDefinition Width="15"/> <!-- spacing -->
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="15"/> <!-- spacing -->
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="15" /> <!-- spacing -->
+                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="15" /> <!-- spacing -->
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            
+
             <Image DockPanel.Dock="Left" Source="{Binding Current.Package.Logo}" Height="40" Width="40" />
-            
-            <ProgressBar Grid.Row="0" Grid.Column="2" 
+
+            <ProgressBar Grid.Row="0" Grid.Column="2"
                          Minimum="0" Background="LightGray"
                          Maximum="{Binding Packages.Count}"
                          Foreground="{Binding ProgressColor}"
                          Value="{Binding CurrentPackageNumber}" />
-            
-            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Text="{Binding Current.Status}"/>
-            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right" Content="Cancel" VerticalAlignment="Center" Command="{Binding RequestCancellation}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Text="{Binding Current.Status}" />
+            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right" Content="Cancel" VerticalAlignment="Center"
+                    Command="{Binding RequestCancellation}" />
         </Grid>
     </Window.Content>
 </Window>
