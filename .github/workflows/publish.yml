@@ -10,6 +10,10 @@ env:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [win10-x64, win10-arm64]
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-dotnet@v2
@@ -28,9 +32,12 @@ jobs:
         run: mkdir ${{ env.build-output }}
 
       - name: Publish
-        run: dotnet publish --self-contained -c Release -r win-x64 -o ${{ env.build-output }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+        run: dotnet publish --self-contained -c Release -r ${{ martix.arch }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+
+      - name: Rename target file
+        run: Move-Item -Path DragonFruit.Kaplan\bin\Release\net6.0\win-x64\publish\DragonFruit.Kaplan.exe -Destination kaplan-${{ martix.arch }}.exe
 
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.build-output }}\DragonFruit.Kaplan.exe
+          files: kaplan-${{ martix.arch }}.exe
