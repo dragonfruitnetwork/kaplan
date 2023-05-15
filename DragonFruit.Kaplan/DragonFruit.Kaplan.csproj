@@ -3,6 +3,7 @@
         <Platforms>AnyCPU</Platforms>
         <OutputType>WinExe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
+        <ApplicationIcon>icon.ico</ApplicationIcon>
         <Configurations>Debug;Release;DryRun</Configurations>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <TargetFramework>net7.0-windows10.0.19041</TargetFramework>
