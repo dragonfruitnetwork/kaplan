@@ -18,12 +18,12 @@ namespace DragonFruit.Kaplan.Views
 
         protected override void OnOpened(EventArgs e)
         {
-            (DataContext as IExecutesTaskPostLoad)?.Perform();
-
             if (DataContext is ICanCloseWindow windowCloser)
             {
                 windowCloser.CloseRequested += () => Dispatcher.UIThread.InvokeAsync(Close);
             }
+
+            (DataContext as IExecutesTaskPostLoad)?.Perform();
         }
 
         protected override void OnClosing(CancelEventArgs e)

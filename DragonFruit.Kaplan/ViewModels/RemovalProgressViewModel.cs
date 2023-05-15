@@ -131,9 +131,9 @@ namespace DragonFruit.Kaplan.ViewModels
             }
 
             Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
-            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
-
             await Task.Delay(1000).ConfigureAwait(false);
+
+            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
             CloseRequested?.Invoke();
         }
     }
