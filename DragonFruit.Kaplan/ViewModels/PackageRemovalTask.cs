@@ -49,11 +49,10 @@ namespace DragonFruit.Kaplan.ViewModels
 
         public async Task RemoveAsync(CancellationToken cancellation = default)
         {
-            var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
-            var currentRemovalTask = _manager.RemovePackageAsync(Package.Package.Id.FullName, options);
-
             var progressCallback = new Progress<DeploymentProgress>(p => Progress = p);
-            await currentRemovalTask.AsTask(cancellation, progressCallback).ConfigureAwait(false);
+            var options = _mode == PackageInstallationMode.Machine ? RemovalOptions.RemoveForAllUsers : RemovalOptions.None;
+
+            await _manager.RemovePackageAsync(Package.Package.Id.FullName, options).AsTask(cancellation, progressCallback).ConfigureAwait(false);
         }
     }
 }
