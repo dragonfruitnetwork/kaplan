@@ -32,10 +32,10 @@ jobs:
         run: mkdir ${{ env.build-output }}
 
       - name: Publish
-        run: dotnet publish --self-contained -c Release -r ${{ matrix.arch }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+        run: dotnet publish --self-contained -c Release -o ${{ env.build-output }} -r ${{ matrix.arch }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
 
       - name: Rename target file
-        run: Move-Item -Path DragonFruit.Kaplan\bin\Release\net6.0\${{ matrix.arch }}\publish\DragonFruit.Kaplan.exe -Destination kaplan-${{ matrix.arch }}.exe
+        run: Move-Item -Path ${{ env.build-output }}\DragonFruit.Kaplan.exe -Destination kaplan-${{ matrix.arch }}.exe
 
       - name: Upload
         uses: softprops/action-gh-release@v1
