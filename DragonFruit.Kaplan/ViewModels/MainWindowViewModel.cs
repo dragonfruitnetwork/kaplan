@@ -47,10 +47,6 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Any());
 
-            var stubsPresentInCurrentList = this.WhenValueChanged(x => x.DisplayedPackages)
-                .ObserveOn(RxApp.TaskpoolScheduler)
-                .Select(x => x.Any(y => y.Package.IsStub));
-
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
@@ -59,7 +55,6 @@ namespace DragonFruit.Kaplan.ViewModels
             _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
 
             // create commands
-            SelectStubPackages = ReactiveCommand.Create(SelectStubPackagesImpl, stubsPresentInCurrentList);
             RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
@@ -100,7 +95,6 @@ namespace DragonFruit.Kaplan.ViewModels
 
         public ICommand ClearSelection { get; }
         public ICommand RefreshPackages { get; }
-        public ICommand SelectStubPackages { get; }
         public ICommand RemovePackages { get; }
 
         private void RefreshPackagesImpl()
@@ -131,12 +125,6 @@ namespace DragonFruit.Kaplan.ViewModels
 
             SelectedPackages.Clear();
             SelectedPackages.AddRange(newPackages);
-        }
-
-        private void SelectStubPackagesImpl()
-        {
-            SelectedPackages.Clear();
-            SelectedPackages.AddRange(DisplayedPackages.Where(x => x.Package.IsStub).Union(SelectedPackages));
         }
 
         private void RemovePackagesImpl()

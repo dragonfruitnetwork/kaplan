@@ -4,10 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" MinHeight="600" MinWidth="800"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/icon.ico"
+        Icon="/icon.ico" MinHeight="600" MinWidth="800"
         Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
 
     <Design.DataContext>
@@ -22,7 +22,6 @@
                            Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}" />
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                    <Button Content="Select All Stubs" Command="{Binding SelectStubPackages}" />
                     <Button Content="Clear Selection" Command="{Binding ClearSelection}" />
                     <Button Content="Remove Packages" Command="{Binding RemovePackages}" />
                 </StackPanel>
