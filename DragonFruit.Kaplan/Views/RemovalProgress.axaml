@@ -38,9 +38,11 @@
                          Foreground="{Binding ProgressColor}"
                          Value="{Binding CurrentPackageNumber}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom" Text="{Binding Current.Status}" />
-            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right" Content="Cancel" VerticalAlignment="Center"
-                    Command="{Binding RequestCancellation}" />
+            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom"
+                       TextTrimming="WordEllipsis" Text="{Binding Current.Status}" />
+
+            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
+                    Content="Cancel" VerticalAlignment="Center" Command="{Binding RequestCancellation}" />
         </Grid>
     </Window.Content>
 </Window>
