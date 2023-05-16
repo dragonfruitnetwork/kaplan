@@ -27,15 +27,14 @@ namespace DragonFruit.Kaplan.Views
             _uninstallMessageListener.Dispose();
         }
 
-        private void OpenProgressDialog(UninstallEventArgs args)
+        private async void OpenProgressDialog(UninstallEventArgs args)
         {
             var window = new RemovalProgress
             {
                 DataContext = new RemovalProgressViewModel(args.Packages, args.Mode)
             };
 
-            window.ShowDialog(this);
-
+            await window.ShowDialog(this).ConfigureAwait(false);
             MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
         }
     }
