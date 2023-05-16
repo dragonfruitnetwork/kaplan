@@ -47,6 +47,7 @@ namespace DragonFruit.Kaplan.ViewModels
             }).ToProperty(this, x => x.ProgressColor);
 
             var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => !x.Item1 && x.Item2 == OperationState.Running);
 
             Packages = packages.ToList();
@@ -67,10 +68,10 @@ namespace DragonFruit.Kaplan.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _currentPackageNumber, value);
         }
 
-        private OperationState Status
+        public OperationState Status
         {
             get => _status;
-            set => this.RaiseAndSetIfChanged(ref _status, value);
+            private set => this.RaiseAndSetIfChanged(ref _status, value);
         }
 
         public bool CancellationRequested => _cancellation.IsCancellationRequested;
@@ -113,7 +114,7 @@ namespace DragonFruit.Kaplan.ViewModels
                     try
                     {
 #if DRY_RUN
-                        await Task.Delay(1000, _cancellation.Token);
+                        await Task.Delay(1000, _cancellation.Token).ConfigureAwait(false);
 #else
                         await Current.RemoveAsync(_cancellation.Token).ConfigureAwait(false);
 #endif
@@ -131,9 +132,9 @@ namespace DragonFruit.Kaplan.ViewModels
             }
 
             Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
-            await Task.Delay(1000).ConfigureAwait(false);
-
             MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+
+            await Task.Delay(1000).ConfigureAwait(false);
             CloseRequested?.Invoke();
         }
     }
