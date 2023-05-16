@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <Platforms>AnyCPU</Platforms>
+        <OutputType>WinExe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
         <ApplicationIcon>icon.ico</ApplicationIcon>
         <Configurations>Debug;Release;DryRun</Configurations>
