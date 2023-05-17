@@ -23,7 +23,10 @@
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
                     <Button Content="Clear Selection" Command="{Binding ClearSelection}" />
-                    <Button Content="Remove Packages" Command="{Binding RemovePackages}" />
+                    <Button Content="Remove Packages"
+                            Command="{Binding RemovePackages}"
+                            Foreground="{DynamicResource AccentButtonForeground}"
+                            Background="{DynamicResource AccentButtonBackground}" />
                 </StackPanel>
             </DockPanel>
 
@@ -32,13 +35,19 @@
                 <Button DockPanel.Dock="Right" Content="Refresh" VerticalAlignment="Stretch"
                         Command="{Binding RefreshPackages}" />
 
-                <ComboBox DockPanel.Dock="Left" Items="{Binding AvailablePackageModes}"
-                          SelectedItem="{Binding PackageMode}" />
-                <TextBox DockPanel.Dock="Left" Margin="10, 0" Watermark="Enter search query..."
+                <ComboBox DockPanel.Dock="Left"
+                          SelectedItem="{Binding PackageMode}"
+                          ItemsSource="{Binding AvailablePackageModes}" />
+
+                <TextBox DockPanel.Dock="Left"
+                         Margin="10, 0"
+                         Watermark="Enter search query..."
                          Text="{Binding SearchQuery}" />
             </DockPanel>
 
-            <ListBox DockPanel.Dock="Top" SelectionMode="Multiple,Toggle" Items="{Binding DisplayedPackages}"
+            <ListBox DockPanel.Dock="Top"
+                     SelectionMode="Multiple,Toggle"
+                     ItemsSource="{Binding DisplayedPackages}"
                      SelectedItems="{Binding SelectedPackages}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -46,13 +55,20 @@
                             <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
                                    Source="{Binding Logo}" />
                             <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
-                                <TextBlock DockPanel.Dock="Top" FontSize="18" TextTrimming="CharacterEllipsis"
+                                <TextBlock DockPanel.Dock="Top"
+                                           FontSize="18"
+                                           TextTrimming="CharacterEllipsis"
                                            Text="{Binding Name}" />
 
                                 <!-- additional package info -->
-                                <TextBlock DockPanel.Dock="Top" FontSize="12" TextTrimming="CharacterEllipsis"
+                                <TextBlock DockPanel.Dock="Top"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"
                                            Text="{Binding Publisher}" Margin="0,2,0,0" />
-                                <TextBlock DockPanel.Dock="Top" FontSize="10" TextTrimming="CharacterEllipsis"
+
+                                <TextBlock DockPanel.Dock="Top"
+                                           FontSize="10"
+                                           TextTrimming="CharacterEllipsis"
                                            Text="{Binding Id}" Foreground="DimGray" />
                             </DockPanel>
                         </DockPanel>

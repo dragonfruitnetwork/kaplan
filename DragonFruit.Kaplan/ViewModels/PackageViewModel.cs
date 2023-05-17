@@ -57,5 +57,7 @@ namespace DragonFruit.Kaplan.ViewModels
 
             Logo = new Bitmap(proxy.AsStreamForRead());
         }
+
+        public override int GetHashCode() => Package.GetHashCode();
     }
 }

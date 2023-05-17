@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Security.Principal;
 using System.Windows.Input;
@@ -47,7 +46,7 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Any());
 
-            _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery)
+            _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
                 .ToProperty(this, x => x.DisplayedPackages);
@@ -55,7 +54,7 @@ namespace DragonFruit.Kaplan.ViewModels
             _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
 
             // create commands
-            RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl, outputScheduler: TaskPoolScheduler.Default);
+            RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl);
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
 
@@ -115,16 +114,19 @@ namespace DragonFruit.Kaplan.ViewModels
                     throw new ArgumentOutOfRangeException();
             }
 
-            SearchQuery = string.Empty;
-            DiscoveredPackages = packages.Where(x => x.SignatureKind != PackageSignatureKind.System)
+            var filteredPackageModels = packages.Where(x => x.SignatureKind != PackageSignatureKind.System)
                 .Select(x => new PackageViewModel(x))
                 .ToList();
 
             // ensure the ui doesn't have non-existent packages nominated through an intersection
-            var newPackages = SelectedPackages.IntersectBy(DiscoveredPackages.Select(x => x.Id), x => x.Id);
+            // ToList needed due to deferred nature of iterators used.
+            var reselectedPackages = filteredPackageModels.IntersectBy(SelectedPackages.Select(x => x.Package.Id.FullName), x => x.Package.Id.FullName).ToList();
 
             SelectedPackages.Clear();
-            SelectedPackages.AddRange(newPackages);
+
+            SearchQuery = string.Empty;
+            DiscoveredPackages = filteredPackageModels;
+            SelectedPackages.AddRange(reselectedPackages);
         }
 
         private void RemovePackagesImpl()
