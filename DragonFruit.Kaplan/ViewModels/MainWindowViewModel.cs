@@ -41,14 +41,18 @@ namespace DragonFruit.Kaplan.ViewModels
 
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet(x => x)
-                .AutoRefresh()
                 .ToCollection()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Any());
 
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
-                .Select(q => q.Item1.Where(x => x.IsSearchMatch(q.Item2)))
+                .Select(q =>
+                {
+                    // because filters remove selected entries, the search will split the listing into two groups, with the matches showing above
+                    var matches = q.Item1.ToLookup(x => x.IsSearchMatch(q.Item2));
+                    return matches[true].Concat(matches[false]);
+                })
                 .ToProperty(this, x => x.DisplayedPackages);
 
             _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
