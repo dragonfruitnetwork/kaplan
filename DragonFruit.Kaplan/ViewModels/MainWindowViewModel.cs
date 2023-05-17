@@ -45,6 +45,7 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Any());
 
+            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q =>
@@ -54,8 +55,6 @@ namespace DragonFruit.Kaplan.ViewModels
                     return matches[true].Concat(matches[false]);
                 })
                 .ToProperty(this, x => x.DisplayedPackages);
-
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
 
             // create commands
             RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl);
