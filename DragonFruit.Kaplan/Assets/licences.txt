@@ -1,0 +1,3 @@
+﻿This is a placeholder for the package licenses that are automatically generated for each release.
+
+Refer the publish workflow for the command/tooling that generates this file.

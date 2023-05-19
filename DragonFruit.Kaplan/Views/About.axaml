@@ -5,17 +5,20 @@
         xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.About"
-        Icon="/icon.ico" CanResize="False" WindowStartupLocation="CenterOwner"
-        MinHeight="300" MinWidth="400" Height="300" Width="400"
-        Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
+        Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
+        CanResize="False" WindowStartupLocation="CenterOwner"
+        MinHeight="300" MinWidth="400" Height="500" Width="650"
+        Title="{Binding Source={x:Static kaplan:Program.AppTitle}}" Loaded="OnLoad">
     <Window.Content>
         <DockPanel Margin="15">
-            <Image DockPanel.Dock="Top" Source="avares://DragonFruit.Kaplan/icon.ico" Height="120" Width="120" Margin="0,0,0,20"/>
+            <Image DockPanel.Dock="Top" Source="avares://DragonFruit.Kaplan/Assets/icon.ico" Height="120" Width="120" Margin="0,0,0,20"/>
 
             <StackPanel DockPanel.Dock="Top" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical" Spacing="5">
                 <TextBlock HorizontalAlignment="Center" FontSize="18">DragonFruit Kaplan</TextBlock>
                 <TextBlock HorizontalAlignment="Center" Text="{Binding Source={x:Static kaplan:Program.Version}, StringFormat=Version {0}}"></TextBlock>
             </StackPanel>
+            
+            <TextBox x:Name="LicenseContents" DockPanel.Dock="Top" IsReadOnly="False" VerticalAlignment="Stretch" TextWrapping="Wrap" Margin="0,10"/>
             
             <TextBlock DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" Foreground="DarkGray">
                 Copyright © 2023 DragonFruit Network

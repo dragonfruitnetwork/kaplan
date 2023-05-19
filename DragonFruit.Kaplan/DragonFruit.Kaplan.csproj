@@ -3,7 +3,7 @@
         <Platforms>AnyCPU</Platforms>
         <OutputType>WinExe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
-        <ApplicationIcon>icon.ico</ApplicationIcon>
+        <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
         <Configurations>Debug;Release;DryRun</Configurations>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <TargetFramework>net7.0-windows10.0.19041</TargetFramework>
@@ -27,9 +27,10 @@
     <ItemGroup>
         <TrimmerRootAssembly Include="FluentAvalonia" />
     </ItemGroup>
-    
+
     <ItemGroup>
-        <AvaloniaResource Include="icon.ico" />
+        <AvaloniaResource Include="Assets\icon.ico" />
+        <AvaloniaResource Include="Assets\licences.txt" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,10 +45,4 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview8" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Views\About.axaml.cs">
-        <DependentUpon>About.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
 </Project>
