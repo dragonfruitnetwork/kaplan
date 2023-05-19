@@ -25,11 +25,13 @@ Releases can be downloaded from the "Releases" tab on the right-hand side of the
 2. Run DragonFruit.Kaplan.exe, allowing it to run as an admin
 3. Search for the packages you wish to remove with the searchbar, and select them by clicking on them
 4. Press the remove button in the bottom right corner and wait for the removal to finish
-    - MSIX/APPX seem to have concurrency restrictions, so if the computer is performing an update some packages may seem to take forever to remove. Don't worry, and if it's taken too long you can restart the program and the apps will be gone.
+    - MSIX/APPX seem to have concurrency restrictions, so if the computer is performing an update some packages may seem to take forever to remove. Give it some time, and if it's taking too long you can restart the program and give it another try.
+    - Some machines may fail to remove apps when using the Machine mode. You may need to remove it via User mode first.
 5. Close the app and send it to the recycle bin (or store it somewhere if you'd like to keep it for future use)
 
 ## Development
 Kaplan is built as a .NET desktop app, using Avalonia UI and their ReactiveUI MVVM library. You will need to use a Windows desktop and run the IDE as an administrator to allow the app to boot properly
+
 **Debug builds do not uninstall packages**, but fakes the uninstallation process with a delay. Switching to release builds will remove this.
 
 ## Contributing
