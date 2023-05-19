@@ -25,14 +25,31 @@ jobs:
           dotnet restore
           dotnet tool install --global dotnet-project-licenses
 
-      - name: Generate Package License Table
-        run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -o --output-directory DragonFruit.Kaplan --outfile licenses.md --include-project-file --md --unique
+      - name: Generate licences.txt
+        run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -u -o --output-directory DragonFruit.Kaplan --outfile licences.txt
 
       - name: Create output directory
         run: mkdir ${{ env.build-output }}
 
       - name: Publish
         run: dotnet publish --self-contained -c Release -o ${{ env.build-output }} -r ${{ matrix.arch }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
+
+      - name: Sign file
+        uses: GabrielAcostaEngler/signtool-code-sign@1.0.6
+        with:
+          folder: ${{ env.build-output }}
+          certificate: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
+          cert-password: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
+
+      - name: Sign file (backup cert)
+        if: ${{ env.CERT_CONTENTS != '' }}
+        uses: GabrielAcostaEngler/signtool-code-sign@1.0.6
+        with:
+          folder: ${{ env.build-output }}
+          certificate: ${{ secrets.BACKUP_CERT_CONTENTS }}
+          cert-password: ${{ secrets.BACKUP_CERT_PASSWORD }}
+        env:
+          CERT_CONTENTS: ${{ secrets.BACKUP_CERT_CONTENTS }}
 
       - name: Rename target file
         run: Move-Item -Path ${{ env.build-output }}\DragonFruit.Kaplan.exe -Destination kaplan-${{ matrix.arch }}.exe
