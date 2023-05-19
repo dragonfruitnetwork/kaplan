@@ -11,7 +11,8 @@ namespace DragonFruit.Kaplan
 {
     internal class Program
     {
-        public static string AppTitle { get; } = $"DragonFruit Kaplan v{typeof(Program).Assembly.GetName().Version!.ToString(3)}";
+        public static string Version { get; } = typeof(Program).Assembly.GetName().Version!.ToString(3);
+        public static string AppTitle { get; } = $"DragonFruit Kaplan v{Version}";
 
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized

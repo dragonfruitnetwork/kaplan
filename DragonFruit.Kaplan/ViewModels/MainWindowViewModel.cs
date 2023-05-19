@@ -58,8 +58,9 @@ namespace DragonFruit.Kaplan.ViewModels
 
             // create commands
             RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl);
-            ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
+            ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
+            ShowAbout = ReactiveCommand.Create(() => MessageBus.Current.SendMessage(new ShowAboutWindowEventArgs()));
 
             // auto refresh the package list if the user package filter switch is changed
             this.WhenValueChanged(x => x.PackageMode).Subscribe(_ => RefreshPackagesImpl());
@@ -95,9 +96,10 @@ namespace DragonFruit.Kaplan.ViewModels
             set => this.RaiseAndSetIfChanged(ref _searchQuery, value);
         }
 
+        public ICommand ShowAbout { get; }
         public ICommand ClearSelection { get; }
-        public ICommand RefreshPackages { get; }
         public ICommand RemovePackages { get; }
+        public ICommand RefreshPackages { get; }
 
         private void RefreshPackagesImpl()
         {

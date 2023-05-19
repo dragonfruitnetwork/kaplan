@@ -2,6 +2,7 @@
 // Licensed under Apache-2. Refer to the LICENSE file for more info
 
 using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
@@ -12,20 +13,17 @@ namespace DragonFruit.Kaplan.Views
 {
     public partial class MainWindow : Window
     {
-        private readonly IDisposable _uninstallMessageListener;
+        private readonly IEnumerable<IDisposable> _messageListeners;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _uninstallMessageListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(OpenProgressDialog);
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-
-            _uninstallMessageListener.Dispose();
+            _messageListeners = new[]
+            {
+                MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(OpenProgressDialog),
+                MessageBus.Current.Listen<ShowAboutWindowEventArgs>().Subscribe(_ => new About().ShowDialog(this))
+            };
         }
 
         private async void OpenProgressDialog(UninstallEventArgs args)
@@ -50,6 +48,16 @@ namespace DragonFruit.Kaplan.Views
             if (sender is ListBox box && box.Scroll != null)
             {
                 box.Scroll.Offset = Vector.Zero;
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            foreach (var messageListener in _messageListeners)
+            {
+                messageListener.Dispose();
             }
         }
     }
