@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
+        xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -31,16 +32,25 @@
             </DockPanel>
 
             <!-- searchbar -->
-            <DockPanel DockPanel.Dock="Top" Margin="10">
-                <Button DockPanel.Dock="Right" Content="Refresh" VerticalAlignment="Stretch"
+            <DockPanel DockPanel.Dock="Top" Margin="5, 10">
+                <Button DockPanel.Dock="Right"
+                        i:Attached.Icon="mdi-information"
+                        Margin="5, 0"
+                        VerticalAlignment="Stretch"/>
+                
+                <Button DockPanel.Dock="Right"
+                        i:Attached.Icon="mdi-refresh"
+                        Margin="5, 0"
+                        VerticalAlignment="Stretch"
                         Command="{Binding RefreshPackages}" />
 
                 <ComboBox DockPanel.Dock="Left"
+                          Margin="5, 0"
                           SelectedItem="{Binding PackageMode}"
                           ItemsSource="{Binding AvailablePackageModes}" />
 
                 <TextBox DockPanel.Dock="Left"
-                         Margin="10, 0"
+                         Margin="5, 0"
                          Watermark="Enter search query..."
                          Text="{Binding SearchQuery}" />
             </DockPanel>
@@ -48,12 +58,14 @@
             <ListBox DockPanel.Dock="Top"
                      SelectionMode="Multiple,Toggle"
                      ItemsSource="{Binding DisplayedPackages}"
-                     SelectedItems="{Binding SelectedPackages}">
+                     SelectedItems="{Binding SelectedPackages}"
+                     PropertyChanged="PackageListPropertyChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="5,10">
                             <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
                                    Source="{Binding Logo}" />
+
                             <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
                                 <TextBlock DockPanel.Dock="Top"
                                            FontSize="18"

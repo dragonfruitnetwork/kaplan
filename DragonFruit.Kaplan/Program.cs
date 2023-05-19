@@ -4,6 +4,8 @@
 using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using Projektanker.Icons.Avalonia;
+using Projektanker.Icons.Avalonia.MaterialDesign;
 
 namespace DragonFruit.Kaplan
 {
@@ -22,6 +24,7 @@ namespace DragonFruit.Kaplan
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
+                .WithIcons(container => container.Register<MaterialDesignIconProvider>())
                 .UseReactiveUI();
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under Apache-2. Refer to the LICENSE file for more info
 
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
 using DragonFruit.Kaplan.ViewModels.Messages;
@@ -36,6 +37,20 @@ namespace DragonFruit.Kaplan.Views
 
             await window.ShowDialog(this).ConfigureAwait(false);
             MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+        }
+
+        private void PackageListPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property.Name != nameof(ListBox.ItemsSource))
+            {
+                return;
+            }
+
+            // when the item source changes
+            if (sender is ListBox box && box.Scroll != null)
+            {
+                box.Scroll.Offset = Vector.Zero;
+            }
         }
     }
 }
