@@ -7,6 +7,10 @@ on:
 env:
   build-output: build-output
 
+permissions:
+  contents: write
+  packages: read
+
 jobs:
   build:
     runs-on: windows-latest
@@ -19,42 +23,24 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "7.0.x"
+          
+      - name: Setup NuGet
+        run: dotnet nuget add source --username github --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dragonfruitnetwork/index.json"
 
       - name: NuGet Restore
         run: |
           dotnet restore
           dotnet tool install --global dotnet-project-licenses
+          dotnet tool install --global DragonFruit.Overpass.Cli
 
       - name: Generate licences.txt
         run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -u -o --output-directory DragonFruit.Kaplan --outfile licences.txt
 
-      - name: Create output directory
-        run: mkdir ${{ env.build-output }}
-
-      - name: Publish
-        run: dotnet publish --self-contained -c Release -o ${{ env.build-output }} -r ${{ matrix.arch }} -p:Version=${{ inputs.version || github.ref_name }} DragonFruit.Kaplan/DragonFruit.Kaplan.csproj
-
-      - name: Sign file
-        uses: GabrielAcostaEngler/signtool-code-sign@1.0.6
-        with:
-          folder: ${{ env.build-output }}
-          certificate: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
-          cert-password: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
-
-      - name: Sign file (backup cert)
-        if: ${{ env.CERT_CONTENTS != '' }}
-        uses: GabrielAcostaEngler/signtool-code-sign@1.0.6
-        with:
-          folder: ${{ env.build-output }}
-          certificate: ${{ secrets.BACKUP_CERT_CONTENTS }}
-          cert-password: ${{ secrets.BACKUP_CERT_PASSWORD }}
+      - name: Run Build Script
+        run: overpass-cli
         env:
-          CERT_CONTENTS: ${{ secrets.BACKUP_CERT_CONTENTS }}
-
-      - name: Rename target file
-        run: Move-Item -Path ${{ env.build-output }}\DragonFruit.Kaplan.exe -Destination kaplan-${{ matrix.arch }}.exe
-
-      - name: Upload
-        uses: softprops/action-gh-release@v1
-        with:
-          files: kaplan-${{ matrix.arch }}.exe
+          AppName: kaplan-${{ matrix.arch }}
+          Build__TargetRuntime: ${{ matrix.arch }}
+          Providers__GitHub__AccessToken: ${{ secrets.GITHUB_TOKEN }}
+          Certificates__DragonFruit__B64Contents: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
+          Certificates__DragonFruit__Password: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
