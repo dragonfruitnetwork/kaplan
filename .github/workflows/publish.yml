@@ -47,5 +47,4 @@ jobs:
           Providers__GitHub__AccessToken: ${{ secrets.GITHUB_TOKEN }}
           Certificates__DragonFruit__B64Contents: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
           Certificates__DragonFruit__Password: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
-          Toolkit__signtool: |
-            C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe
+          Toolkit__signtool: C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/signtool.exe
