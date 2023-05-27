@@ -23,8 +23,8 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: |
-            "7.0.x"
-            "6.0.x"
+            6.0.x
+            7.0.x
           
       - name: Setup NuGet
         run: dotnet nuget add source --username github --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dragonfruitnetwork/index.json"
