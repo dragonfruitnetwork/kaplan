@@ -20,6 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: microsoft/setup-msbuild@v1.1
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: |
@@ -46,3 +47,5 @@ jobs:
           Providers__GitHub__AccessToken: ${{ secrets.GITHUB_TOKEN }}
           Certificates__DragonFruit__B64Contents: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
           Certificates__DragonFruit__Password: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
+          Toolkit__signtool: |
+            C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe
