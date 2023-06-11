@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DragonFruit.Kaplan.Views.Welcome"
+        Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
+        CanResize="False"
+        MinHeight="300" MinWidth="500" Height="300" Width="600"
+        Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
+    <Window.Content>
+        <DockPanel Margin="15">
+            <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Spacing="10" HorizontalAlignment="Center">
+                <Image Source="avares://DragonFruit.Kaplan/Assets/icon.ico" Height="80" Width="80" />
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical" Spacing="5">
+                    <TextBlock HorizontalAlignment="Center" FontSize="18">Welcome to DragonFruit Kaplan</TextBlock>
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding Source={x:Static kaplan:Program.Version}, StringFormat=Version {0}}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                <Button DockPanel.Dock="Right" Click="CloseDialog">Continue</Button>
+                <Button DockPanel.Dock="Right" Click="OpenAboutDialog" Margin="10, 0">About</Button>
+                
+                <CheckBox DockPanel.Dock="Left" IsChecked="{Binding BugReportingEnabled, Source={x:Static kaplan:App.Instance}}">Enable sending (anonymous) bug reports</CheckBox>
+            </DockPanel>
+        </DockPanel>
+    </Window.Content>
+</Window>

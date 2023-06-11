@@ -4,13 +4,16 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using DragonFruit.Kaplan.ViewModels;
 using DragonFruit.Kaplan.Views;
 
 namespace DragonFruit.Kaplan
 {
     public partial class App : Application
     {
+        public bool BugReportingEnabled { get; set; } = true;
+
+        public static App Instance => (App)Current;
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -20,10 +23,7 @@ namespace DragonFruit.Kaplan
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel()
-                };
+                desktop.MainWindow = new Welcome();
             }
 
             base.OnFrameworkInitializationCompleted();
