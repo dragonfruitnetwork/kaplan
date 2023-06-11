@@ -7,9 +7,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using Avalonia.Threading;
 using DragonFruit.Kaplan.ViewModels.Enums;
 using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
@@ -42,10 +44,10 @@ namespace DragonFruit.Kaplan.ViewModels
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet(x => x)
                 .ToCollection()
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(x => x.Any());
 
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(x => RefreshPackagesImpl());
+            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => RefreshPackagesImpl());
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q =>
@@ -57,13 +59,13 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ToProperty(this, x => x.DisplayedPackages);
 
             // create commands
-            RefreshPackages = ReactiveCommand.Create(RefreshPackagesImpl);
+            RefreshPackages = ReactiveCommand.CreateFromTask(RefreshPackagesImpl);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
             ShowAbout = ReactiveCommand.Create(() => MessageBus.Current.SendMessage(new ShowAboutWindowEventArgs()));
 
             // auto refresh the package list if the user package filter switch is changed
-            this.WhenValueChanged(x => x.PackageMode).Subscribe(_ => RefreshPackagesImpl());
+            this.WhenValueChanged(x => x.PackageMode).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ => RefreshPackages.Execute(null));
         }
 
         public IEnumerable<PackageInstallationMode> AvailablePackageModes { get; }
@@ -101,7 +103,7 @@ namespace DragonFruit.Kaplan.ViewModels
         public ICommand RemovePackages { get; }
         public ICommand RefreshPackages { get; }
 
-        private void RefreshPackagesImpl()
+        private async Task RefreshPackagesImpl()
         {
             IEnumerable<Package> packages;
 
@@ -127,11 +129,14 @@ namespace DragonFruit.Kaplan.ViewModels
             // ToList needed due to deferred nature of iterators used.
             var reselectedPackages = filteredPackageModels.IntersectBy(SelectedPackages.Select(x => x.Package.Id.FullName), x => x.Package.Id.FullName).ToList();
 
-            SelectedPackages.Clear();
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                SelectedPackages.Clear();
 
-            SearchQuery = string.Empty;
-            DiscoveredPackages = filteredPackageModels;
-            SelectedPackages.AddRange(reselectedPackages);
+                SearchQuery = string.Empty;
+                DiscoveredPackages = filteredPackageModels;
+                SelectedPackages.AddRange(reselectedPackages);
+            });
         }
 
         private void RemovePackagesImpl()
