@@ -37,7 +37,7 @@
                                                    IsEnabled="True"
                                                    Command="{Binding ClearSelection}" />
 
-                        <controls:CommandBarButton Label="Remove Packages"
+                        <controls:CommandBarButton Label="{Binding SelectedPackages.Count, StringFormat='Remove {0} Packages'}"
                                                    IconSource="Delete"
                                                    Command="{Binding RemovePackages}"
                                                    Foreground="{DynamicResource AccentButtonBackground}" />
