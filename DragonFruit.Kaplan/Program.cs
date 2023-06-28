@@ -4,8 +4,6 @@
 using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using Projektanker.Icons.Avalonia;
-using Projektanker.Icons.Avalonia.MaterialDesign;
 
 namespace DragonFruit.Kaplan
 {
@@ -21,11 +19,10 @@ namespace DragonFruit.Kaplan
         public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
         // Avalonia configuration, don't remove; also used by visual designer.
-        public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        private static AppBuilder BuildAvaloniaApp() =>
+            AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
-                .WithIcons(container => container.Register<MaterialDesignIconProvider>())
                 .UseReactiveUI();
     }
 }
