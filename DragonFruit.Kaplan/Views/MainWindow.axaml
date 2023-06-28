@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
-        xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+        xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -17,47 +17,44 @@
 
     <Window.Content>
         <DockPanel>
-            <!-- control bar -->
-            <DockPanel DockPanel.Dock="Bottom" Margin="10">
-                <TextBlock VerticalAlignment="Center"
-                           Text="{Binding SelectedPackages.Count, StringFormat={}{0} Package(s) Selected. Click an entry to select/unselect it.}" />
-
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                    <Button Content="Clear Selection" Command="{Binding ClearSelection}" />
-                    <Button Content="Remove Packages"
-                            Command="{Binding RemovePackages}"
-                            Foreground="{DynamicResource AccentButtonForeground}"
-                            Background="{DynamicResource AccentButtonBackground}" />
-                </StackPanel>
-            </DockPanel>
-
             <!-- searchbar -->
-            <DockPanel DockPanel.Dock="Top" Margin="5, 10">
+            <DockPanel DockPanel.Dock="Top" Margin="10">
                 <DockPanel.Styles>
                     <Style Selector="DockPanel > :is(Control)">
-                        <Setter Property="Margin" Value="5,0"/>
-                        <Setter Property="VerticalAlignment" Value="Stretch"/>
-                    </Style>
-                    <Style Selector="Button">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Margin" Value="2.5,0" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
                     </Style>
                 </DockPanel.Styles>
-                
-                <Button DockPanel.Dock="Right"
-                        i:Attached.Icon="mdi-information"
-                        Command="{Binding ShowAbout}"/>
-                
-                <Button DockPanel.Dock="Right"
-                        i:Attached.Icon="mdi-refresh"
-                        Command="{Binding RefreshPackages}" />
+
+                <controls:CommandBar DefaultLabelPosition="Right" DockPanel.Dock="Right">
+                    <controls:CommandBar.PrimaryCommands>
+                        <controls:CommandBarButton Label="Refresh Packages"
+                                                   IconSource="Refresh"
+                                                   Command="{Binding RefreshPackages}" />
+
+                        <controls:CommandBarButton Label="Clear Selection"
+                                                   IconSource="Clear"
+                                                   IsEnabled="True"
+                                                   Command="{Binding ClearSelection}" />
+
+                        <controls:CommandBarButton Label="Remove Packages"
+                                                   IconSource="Delete"
+                                                   Command="{Binding RemovePackages}"
+                                                   Foreground="{DynamicResource AccentButtonBackground}" />
+                    </controls:CommandBar.PrimaryCommands>
+
+                    <controls:CommandBar.SecondaryCommands>
+                        <controls:CommandBarButton Label="About Kaplan"
+                                                   IconSource="AllApps"
+                                                   Command="{Binding ShowAbout}" />
+                    </controls:CommandBar.SecondaryCommands>
+                </controls:CommandBar>
 
                 <ComboBox DockPanel.Dock="Left"
                           SelectedItem="{Binding PackageMode}"
                           ItemsSource="{Binding AvailablePackageModes}" />
 
                 <TextBox DockPanel.Dock="Left"
-                         Margin="0"
                          Watermark="Enter search query..."
                          Text="{Binding SearchQuery}" />
             </DockPanel>
