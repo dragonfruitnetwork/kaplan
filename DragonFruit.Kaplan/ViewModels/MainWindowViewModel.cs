@@ -42,9 +42,9 @@ namespace DragonFruit.Kaplan.ViewModels
                 : new[] {PackageInstallationMode.Machine};
 
             // create observables
-            var packagesSelected = SelectedPackages.ToObservableChangeSet(x => x)
+            var packagesSelected = SelectedPackages.ToObservableChangeSet()
                 .ToCollection()
-                .ObserveOn(RxApp.TaskpoolScheduler)
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Any());
 
             _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => RefreshPackagesImpl());
