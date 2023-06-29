@@ -10,7 +10,7 @@
         x:Class="DragonFruit.Kaplan.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
-        MinHeight="600" MinWidth="800" Background="Transparent"
+        MinHeight="600" MinWidth="800" Background="{x:Null}"
         Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
 
     <Design.DataContext>

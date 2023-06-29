@@ -20,15 +20,10 @@ namespace DragonFruit.Kaplan.Views
         {
             InitializeComponent();
 
+            TransparencyLevelHint = Program.TransparencyLevels;
+
             TitleBar.ExtendsContentIntoTitleBar = true;
             TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
-
-            TransparencyLevelHint = new[]
-            {
-                WindowTransparencyLevel.Mica,
-                WindowTransparencyLevel.AcrylicBlur,
-                WindowTransparencyLevel.None
-            };
 
             _messageListeners = new[]
             {
