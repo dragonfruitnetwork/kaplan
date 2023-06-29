@@ -7,17 +7,28 @@ using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
 using DragonFruit.Kaplan.ViewModels.Messages;
+using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : AppWindow
     {
         private readonly IEnumerable<IDisposable> _messageListeners;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            TitleBar.ExtendsContentIntoTitleBar = true;
+            TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
+
+            TransparencyLevelHint = new[]
+            {
+                WindowTransparencyLevel.Mica,
+                WindowTransparencyLevel.AcrylicBlur,
+                WindowTransparencyLevel.None
+            };
 
             _messageListeners = new[]
             {

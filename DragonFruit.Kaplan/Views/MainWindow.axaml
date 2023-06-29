@@ -1,14 +1,16 @@
-<Window xmlns="https://github.com/avaloniaui"
+<windowing:AppWindow xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
         xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="avares://DragonFruit.Kaplan/Assets/icon.ico" MinHeight="600" MinWidth="800"
+        Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
+        MinHeight="600" MinWidth="800" Background="Transparent"
         Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
 
     <Design.DataContext>
@@ -16,81 +18,99 @@
     </Design.DataContext>
 
     <Window.Content>
-        <DockPanel>
-            <!-- searchbar -->
-            <DockPanel DockPanel.Dock="Top" Margin="10">
-                <DockPanel.Styles>
-                    <Style Selector="DockPanel > :is(Control)">
-                        <Setter Property="Margin" Value="2.5,0" />
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                    </Style>
-                </DockPanel.Styles>
+        <Panel>
+            <ExperimentalAcrylicBorder IsHitTestVisible="False">
+                <ExperimentalAcrylicBorder.Material>
+                    <ExperimentalAcrylicMaterial
+                        BackgroundSource="None"
+                        TintColor="{DynamicResource SolidBackgroundFillColorBase}"
+                        TintOpacity="0.85"
+                        MaterialOpacity="0.5" />
+                </ExperimentalAcrylicBorder.Material>
+            </ExperimentalAcrylicBorder>
 
-                <controls:CommandBar DefaultLabelPosition="Right" DockPanel.Dock="Right">
-                    <controls:CommandBar.PrimaryCommands>
-                        <controls:CommandBarButton Label="Refresh Packages"
-                                                   IconSource="Refresh"
-                                                   Command="{Binding RefreshPackages}" />
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10">
+                    <Image Source="avares://DragonFruit.Kaplan/Assets/icon.ico" Height="16" Width="16" />
+                    <TextBlock Text="{Binding Source={x:Static kaplan:Program.AppTitle}}"/>
+                </StackPanel>
+                
+                <!-- searchbar -->
+                <DockPanel DockPanel.Dock="Top" Margin="5">
+                    <DockPanel.Styles>
+                        <Style Selector="DockPanel > :is(Control)">
+                            <Setter Property="Margin" Value="5,0" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DockPanel.Styles>
 
-                        <controls:CommandBarButton Label="Clear Selection"
-                                                   IconSource="Clear"
-                                                   IsEnabled="True"
-                                                   Command="{Binding ClearSelection}" />
+                    <controls:CommandBar DefaultLabelPosition="Right" DockPanel.Dock="Right" Background="Transparent">
+                        <controls:CommandBar.PrimaryCommands>
+                            <controls:CommandBarButton Label="Refresh Packages"
+                                                       IconSource="Refresh"
+                                                       Command="{Binding RefreshPackages}" />
 
-                        <controls:CommandBarButton Label="{Binding SelectedPackages.Count, StringFormat='Remove {0} Packages'}"
-                                                   IconSource="Delete"
-                                                   Command="{Binding RemovePackages}"
-                                                   Foreground="{DynamicResource AccentButtonBackground}" />
-                    </controls:CommandBar.PrimaryCommands>
+                            <controls:CommandBarButton Label="Clear Selection"
+                                                       IconSource="Clear"
+                                                       IsEnabled="True"
+                                                       Command="{Binding ClearSelection}" />
 
-                    <controls:CommandBar.SecondaryCommands>
-                        <controls:CommandBarButton Label="About Kaplan"
-                                                   IconSource="AllApps"
-                                                   Command="{Binding ShowAbout}" />
-                    </controls:CommandBar.SecondaryCommands>
-                </controls:CommandBar>
+                            <controls:CommandBarButton
+                                Label="{Binding SelectedPackages.Count, StringFormat='Remove {0} Packages'}"
+                                IconSource="Delete"
+                                Command="{Binding RemovePackages}"
+                                Foreground="{DynamicResource AccentButtonBackground}" />
+                        </controls:CommandBar.PrimaryCommands>
 
-                <ComboBox DockPanel.Dock="Left"
-                          SelectedItem="{Binding PackageMode}"
-                          ItemsSource="{Binding AvailablePackageModes}" />
+                        <controls:CommandBar.SecondaryCommands>
+                            <controls:CommandBarButton Label="About Kaplan"
+                                                       IconSource="AllApps"
+                                                       Command="{Binding ShowAbout}" />
+                        </controls:CommandBar.SecondaryCommands>
+                    </controls:CommandBar>
 
-                <TextBox DockPanel.Dock="Left"
-                         Watermark="Enter search query..."
-                         Text="{Binding SearchQuery}" />
-            </DockPanel>
+                    <ComboBox DockPanel.Dock="Left"
+                              SelectedItem="{Binding PackageMode}"
+                              ItemsSource="{Binding AvailablePackageModes}" />
 
-            <ListBox DockPanel.Dock="Top"
-                     SelectionMode="Multiple,Toggle"
-                     ItemsSource="{Binding DisplayedPackages}"
-                     SelectedItems="{Binding SelectedPackages}"
-                     PropertyChanged="PackageListPropertyChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <DockPanel Margin="5,10">
-                            <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
-                                   Source="{Binding Logo}" />
+                    <TextBox DockPanel.Dock="Left"
+                             Watermark="Enter search query..."
+                             Text="{Binding SearchQuery}" />
+                </DockPanel>
 
-                            <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
-                                <TextBlock DockPanel.Dock="Top"
-                                           FontSize="18"
-                                           TextTrimming="CharacterEllipsis"
-                                           Text="{Binding Name}" />
+                <ListBox DockPanel.Dock="Top"
+                         SelectionMode="Multiple,Toggle"
+                         ItemsSource="{Binding DisplayedPackages}"
+                         SelectedItems="{Binding SelectedPackages}"
+                         PropertyChanged="PackageListPropertyChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="5,10">
+                                <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
+                                       Source="{Binding Logo}" />
 
-                                <!-- additional package info -->
-                                <TextBlock DockPanel.Dock="Top"
-                                           FontSize="12"
-                                           TextTrimming="CharacterEllipsis"
-                                           Text="{Binding Publisher}" Margin="0,2,0,0" />
+                                <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
+                                    <TextBlock DockPanel.Dock="Top"
+                                               FontSize="18"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding Name}" />
 
-                                <TextBlock DockPanel.Dock="Top"
-                                           FontSize="10"
-                                           TextTrimming="CharacterEllipsis"
-                                           Text="{Binding Id}" Foreground="DimGray" />
+                                    <!-- additional package info -->
+                                    <TextBlock DockPanel.Dock="Top"
+                                               FontSize="12"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding Publisher}" Margin="0,2,0,0" />
+
+                                    <TextBlock DockPanel.Dock="Top"
+                                               FontSize="10"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding Id}" Foreground="{DynamicResource TextFillColorDisabled}" />
+                                </DockPanel>
                             </DockPanel>
-                        </DockPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Panel>
     </Window.Content>
-</Window>
+</windowing:AppWindow>
