@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DragonFruit.Kaplan.Views.Welcome"
         Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
-        CanResize="False"
+        CanResize="False" WindowStartupLocation="CenterScreen"
         MinHeight="300" MinWidth="500" Height="300" Width="600"
         Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
     <Window.Content>
