@@ -50,7 +50,7 @@ namespace DragonFruit.Kaplan.Views
                 return;
             }
 
-            // when the item source changes
+            // when the item source changes, scroll to the top
             if (sender is ListBox box && box.Scroll != null)
             {
                 box.Scroll.Offset = Vector.Zero;
