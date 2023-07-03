@@ -1,6 +1,7 @@
 // Kaplan Copyright (c) DragonFruit Network <inbox@dragonfruit.network>
 // Licensed under Apache-2. Refer to the LICENSE file for more info
 
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -14,7 +15,13 @@ namespace DragonFruit.Kaplan.Views
         public Welcome()
         {
             InitializeComponent();
+            DataContext = this;
         }
+
+        public bool ShowCompatabilityMessage => !WindowsVersionCompatible;
+        public bool WindowsVersionCompatible => Environment.OSVersion.Version >= Program.MinWindowsVersion;
+
+        public string CompatabilityErrorMessage => $"Windows {Program.MinWindowsVersion.ToString()} is required to use this program. This machine is currently running version {Environment.OSVersion.Version.ToString()}";
 
         private async void OpenAboutDialog(object sender, RoutedEventArgs e)
         {

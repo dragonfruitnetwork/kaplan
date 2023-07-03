@@ -10,6 +10,8 @@ namespace DragonFruit.Kaplan
 {
     internal class Program
     {
+        internal static Version MinWindowsVersion = new("10.0.19041");
+
         public static string Version { get; } = typeof(Program).Assembly.GetName().Version!.ToString(3);
         public static string AppTitle { get; } = $"DragonFruit Kaplan v{Version}";
 
