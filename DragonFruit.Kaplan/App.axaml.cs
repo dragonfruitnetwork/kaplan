@@ -5,17 +5,48 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using DragonFruit.Kaplan.Views;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 
 namespace DragonFruit.Kaplan
 {
     public partial class App : Application
     {
+        public static App Instance => (App)Current;
+
+        private ILoggerFactory Logger { get; set; }
+
         public bool BugReportingEnabled { get; set; } = true;
 
-        public static App Instance => (App)Current;
+        public static ILogger GetLogger<T>()
+        {
+            return Instance.Logger.CreateLogger<T>();
+        }
 
         public override void Initialize()
         {
+            Logger = LoggerFactory.Create(o =>
+            {
+                o.ClearProviders();
+
+                o.AddEventLog(new EventLogSettings
+                {
+                    SourceName = Program.AppTitle,
+                    Filter = (_, level) => level >= LogLevel.Warning
+                });
+
+                o.AddSentry(s =>
+                {
+                    s.Release = Program.Version;
+                    s.Dsn = "https://7818b48e8de14c9f8b1e32df36e7417b@o97031.ingest.sentry.io/4505465657294848";
+
+                    s.MaxBreadcrumbs = 200;
+                    s.MinimumEventLevel = LogLevel.Warning;
+
+                    s.SetBeforeSend(e => BugReportingEnabled ? e : null);
+                });
+            });
+
             AvaloniaXamlLoader.Load(this);
         }
 
