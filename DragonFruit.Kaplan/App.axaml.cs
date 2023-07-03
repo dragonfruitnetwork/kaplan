@@ -32,7 +32,7 @@ namespace DragonFruit.Kaplan
                 o.AddEventLog(new EventLogSettings
                 {
                     SourceName = Program.AppTitle,
-                    Filter = (_, level) => level >= LogLevel.Warning
+                    Filter = (_, level) => level is LogLevel.Warning or LogLevel.Error or LogLevel.Critical
                 });
 
                 o.AddSentry(s =>
