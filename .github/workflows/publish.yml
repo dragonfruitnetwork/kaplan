@@ -37,7 +37,7 @@ jobs:
           dotnet tool install --global DragonFruit.Overpass.Cli
 
       - name: Generate licences.txt
-        run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -u -o --output-directory DragonFruit.Kaplan --outfile licences.txt
+        run: dotnet-project-licenses -i DragonFruit.Kaplan.sln -u -o --output-directory DragonFruit.Kaplan\Assets --outfile licences.txt
 
       - name: Run Build Script
         run: overpass-cli
