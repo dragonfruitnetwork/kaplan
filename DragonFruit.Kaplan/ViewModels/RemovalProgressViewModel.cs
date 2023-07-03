@@ -15,6 +15,7 @@ using Avalonia.Media;
 using DragonFruit.Kaplan.ViewModels.Enums;
 using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData.Binding;
+using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using ReactiveUI;
 
@@ -22,6 +23,7 @@ namespace DragonFruit.Kaplan.ViewModels
 {
     public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad, ICanCloseWindow
     {
+        private readonly ILogger _logger = App.GetLogger<RemovalProgressViewModel>();
         private readonly AsyncLock _lock = new();
         private readonly PackageInstallationMode _mode;
         private readonly CancellationTokenSource _cancellation = new();
@@ -95,6 +97,9 @@ namespace DragonFruit.Kaplan.ViewModels
 
         async Task IExecutesTaskPostLoad.Perform()
         {
+            _logger.LogInformation("Removal process started");
+            _logger.LogDebug("Waiting for lock access");
+
             using (await _lock.LockAsync(_cancellation.Token).ConfigureAwait(false))
             {
                 Status = OperationState.Running;
@@ -113,6 +118,8 @@ namespace DragonFruit.Kaplan.ViewModels
 
                     try
                     {
+                        _logger.LogInformation("Starting removal of {packageId}", Current.Package.Id);
+
 #if DRY_RUN
                         await Task.Delay(1000, _cancellation.Token).ConfigureAwait(false);
 #else
@@ -121,11 +128,13 @@ namespace DragonFruit.Kaplan.ViewModels
                     }
                     catch (OperationCanceledException)
                     {
+                        _logger.LogInformation("Package removal cancelled by user (stopped at {packageId})", Current.Package.Id);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // todo log error
                         Status = OperationState.Errored;
+                        _logger.LogError(ex, "Package removal failed: {err}", ex.Message);
+
                         break;
                     }
                 }
@@ -133,6 +142,8 @@ namespace DragonFruit.Kaplan.ViewModels
 
             Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
             MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+
+            _logger.LogInformation("Package removal process ended: {state}", Status);
 
             await Task.Delay(1000).ConfigureAwait(false);
             CloseRequested?.Invoke();

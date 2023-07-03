@@ -16,12 +16,14 @@ using DragonFruit.Kaplan.ViewModels.Enums;
 using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
 using DynamicData.Binding;
+using Microsoft.Extensions.Logging;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.ViewModels
 {
     public class MainWindowViewModel : ReactiveObject, IDisposable
     {
+        private readonly ILogger _logger;
         private readonly WindowsIdentity _currentUser;
         private readonly PackageManager _packageManager;
         private readonly IDisposable _packageRefreshListener;
@@ -36,6 +38,8 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             _packageManager = new PackageManager();
             _currentUser = WindowsIdentity.GetCurrent();
+
+            _logger = App.GetLogger<MainWindowViewModel>();
 
             AvailablePackageModes = _currentUser.User != null
                 ? Enum.GetValues<PackageInstallationMode>()
@@ -74,10 +78,10 @@ namespace DragonFruit.Kaplan.ViewModels
 
         public IEnumerable<PackageViewModel> DisplayedPackages => _displayedPackages.Value;
 
-        public IReadOnlyCollection<PackageViewModel> DiscoveredPackages
+        private IReadOnlyCollection<PackageViewModel> DiscoveredPackages
         {
             get => _discoveredPackages;
-            private set => this.RaiseAndSetIfChanged(ref _discoveredPackages, value);
+            set => this.RaiseAndSetIfChanged(ref _discoveredPackages, value);
         }
 
         /// <summary>
@@ -110,10 +114,12 @@ namespace DragonFruit.Kaplan.ViewModels
             switch (PackageMode)
             {
                 case PackageInstallationMode.User when _currentUser.User != null:
+                    _logger.LogInformation("Loading Packages for user {userId}", _currentUser.User.Value);
                     packages = _packageManager.FindPackagesForUser(_currentUser.User.Value);
                     break;
 
                 case PackageInstallationMode.Machine:
+                    _logger.LogInformation("Loading machine-wide packages");
                     packages = _packageManager.FindPackages();
                     break;
 
@@ -124,6 +130,8 @@ namespace DragonFruit.Kaplan.ViewModels
             var filteredPackageModels = packages.Where(x => x.SignatureKind != PackageSignatureKind.System)
                 .Select(x => new PackageViewModel(x))
                 .ToList();
+
+            _logger.LogDebug("Discovered {x} packages", filteredPackageModels.Count);
 
             // ensure the ui doesn't have non-existent packages nominated through an intersection
             // ToList needed due to deferred nature of iterators used.
@@ -141,7 +149,11 @@ namespace DragonFruit.Kaplan.ViewModels
 
         private void RemovePackagesImpl()
         {
-            var args = new UninstallEventArgs(SelectedPackages.Select(x => x.Package), PackageMode);
+            var packages = SelectedPackages.Select(x => x.Package).ToList();
+            var args = new UninstallEventArgs(packages, PackageMode);
+
+            _logger.LogInformation("Starting removal of {x} packages", packages.Count);
+
             MessageBus.Current.SendMessage(args);
         }
 

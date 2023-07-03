@@ -8,6 +8,7 @@ using Windows.ApplicationModel;
 using Windows.Foundation;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Microsoft.Extensions.Logging;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.ViewModels
@@ -52,6 +53,8 @@ namespace DragonFruit.Kaplan.ViewModels
 
         private async Task LoadIconStream()
         {
+            App.GetLogger<PackageViewModel>().LogTrace("Loading package icon for {appId}", Id);
+
             var loader = Package.GetLogoAsRandomAccessStreamReference(new Size(64, 64));
             using var proxy = await loader.OpenReadAsync();
 
