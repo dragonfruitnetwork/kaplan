@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Foundation;
@@ -53,12 +54,18 @@ namespace DragonFruit.Kaplan.ViewModels
 
         private async Task LoadIconStream()
         {
-            App.GetLogger<PackageViewModel>().LogTrace("Loading package icon for {appId}", Id);
+            try
+            {
+                var loader = Package.GetLogoAsRandomAccessStreamReference(new Size(64, 64));
+                using var proxy = await loader.OpenReadAsync();
 
-            var loader = Package.GetLogoAsRandomAccessStreamReference(new Size(64, 64));
-            using var proxy = await loader.OpenReadAsync();
-
-            Logo = new Bitmap(proxy.AsStreamForRead());
+                Logo = new Bitmap(proxy.AsStreamForRead());
+            }
+            catch (COMException comEx) when ((uint)comEx.ErrorCode == 0x80070490)
+            {
+                // Element not found COM error - do nothing
+                App.GetLogger<PackageViewModel>().LogDebug("Loading package icon for {appId} failed: {msg}", Id, comEx.Message);
+            }
         }
 
         public override int GetHashCode() => Package.GetHashCode();
