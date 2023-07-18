@@ -19,6 +19,12 @@ To minimise potential damage, the app will only list packages installed for the 
 
 ### Releases
 Releases can be downloaded from the "Releases" tab on the right-hand side of the GitHub repo.
+The application is approx 50MB and contains:
+
+- The app logic
+- .NET Libraries
+- UI Framework (Avalonia)
+- Native Code for accelerating the startup time
 
 ## Usage
 1. Download the latest version from the Releases tab
@@ -30,7 +36,7 @@ Releases can be downloaded from the "Releases" tab on the right-hand side of the
 5. Close the app and send it to the recycle bin (or store it somewhere if you'd like to keep it for future use)
 
 ## Development
-Kaplan is built as a .NET desktop app, using Avalonia UI and their ReactiveUI MVVM library. You will need to use a Windows desktop and run the IDE as an administrator to allow the app to boot properly
+Kaplan is built as a .NET desktop app, using Avalonia UI and their ReactiveUI MVVM library. You will need to use a Windows desktop and run the IDE as an administrator to allow the app to boot properly.
 
 **Debug builds do not uninstall packages**, but fakes the uninstallation process with a delay. Switching to release builds will remove this.
 
