@@ -1,5 +1,6 @@
 # DragonFruit Kaplan
 [![DragonFruit Discord](https://img.shields.io/discord/482528405292843018?label=Discord&style=popout)](https://discord.gg/VA26u5Z)
+[![GitHub Latest Release)](https://img.shields.io/github/v/release/dragonfruitnetwork/kaplan?logo=github)](https://github.com/dragonfruitnetwork/kaplan/releases/latest)
 
 A portable MSIX/APPX removal utility.
 
