@@ -43,7 +43,7 @@ namespace DragonFruit.Kaplan
                     s.MaxBreadcrumbs = 200;
                     s.MinimumEventLevel = LogLevel.Warning;
 
-                    s.SetBeforeSend(e => BugReportingEnabled ? e : null);
+                    s.SetBeforeSend(e => BugReportingEnabled && typeof(Program).Assembly.GetName().Version?.Major > 1 ? e : null);
                 });
             });
 
