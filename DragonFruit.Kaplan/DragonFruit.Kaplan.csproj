@@ -35,7 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
         <PackageReference Include="Avalonia" Version="11.0.11" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.11" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.11" />
