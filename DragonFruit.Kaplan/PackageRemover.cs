@@ -134,12 +134,12 @@ namespace DragonFruit.Kaplan
                 catch (OperationCanceledException)
                 {
                     State = OperationState.Canceled;
-                    break;
+                    return removed;
                 }
                 catch
                 {
                     State = OperationState.Errored;
-                    break;
+                    return removed;
                 }
             }
 
