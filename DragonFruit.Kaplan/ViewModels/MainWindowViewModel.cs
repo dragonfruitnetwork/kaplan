@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +16,6 @@ using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Avalonia.Threading;
 using DragonFruit.Kaplan.ViewModels.Enums;
-using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
 using DynamicData.Binding;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,6 @@ namespace DragonFruit.Kaplan.ViewModels
         private readonly ILogger _logger;
         private readonly WindowsIdentity _currentUser;
         private readonly PackageManager _packageManager;
-        private readonly IDisposable _packageRefreshListener;
 
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
@@ -52,7 +52,6 @@ namespace DragonFruit.Kaplan.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Select(x => x.Count != 0);
 
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => RefreshPackagesImpl());
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q =>
@@ -67,8 +66,9 @@ namespace DragonFruit.Kaplan.ViewModels
             RefreshPackages = ReactiveCommand.CreateFromTask(RefreshPackagesImpl);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
-            ShowAbout = ReactiveCommand.Create(() => MessageBus.Current.SendMessage(new ShowAboutWindowEventArgs()));
+            ShowAbout = ReactiveCommand.CreateFromTask(() => AboutPageInteraction.Handle(Unit.Default).ToTask());
 
+            AboutPageInteraction = new Interaction<Unit, Unit>();
             BeginRemovalInteraction = new Interaction<RemovalProgressViewModel, PackageRemover.OperationState>();
 
             // auto refresh the package list if the user package filter switch is changed
@@ -110,6 +110,7 @@ namespace DragonFruit.Kaplan.ViewModels
         public ICommand RemovePackages { get; }
         public ICommand RefreshPackages { get; }
 
+        public Interaction<Unit, Unit> AboutPageInteraction { get; }
         public Interaction<RemovalProgressViewModel, PackageRemover.OperationState> BeginRemovalInteraction { get; }
 
         private async Task RefreshPackagesImpl()
@@ -172,7 +173,6 @@ namespace DragonFruit.Kaplan.ViewModels
         public void Dispose()
         {
             _displayedPackages?.Dispose();
-            _packageRefreshListener?.Dispose();
         }
     }
 }
