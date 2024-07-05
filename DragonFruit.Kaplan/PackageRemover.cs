@@ -118,7 +118,7 @@ namespace DragonFruit.Kaplan
                 try
                 {
                     State = OperationState.Running;
-#if !DEBUG
+#if !DRY_RUN
                     var progress = new Progress<DeploymentProgress>(p => CurrentPackageRemovalProgress = p);
                     await _manager.RemovePackageAsync(_packages[i].Id.FullName, _mode).AsTask(cancellation, progress).ConfigureAwait(false);
 #else

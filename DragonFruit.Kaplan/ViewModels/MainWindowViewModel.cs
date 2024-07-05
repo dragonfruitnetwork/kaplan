@@ -39,7 +39,6 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             _packageManager = new PackageManager();
             _currentUser = WindowsIdentity.GetCurrent();
-
             _logger = App.GetLogger<MainWindowViewModel>();
 
             AvailablePackageModes = _currentUser.User != null
