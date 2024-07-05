@@ -2,9 +2,8 @@
 // Licensed under Apache-2. Refer to the LICENSE file for more info
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,76 +11,95 @@ using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Avalonia.Media;
-using DragonFruit.Kaplan.ViewModels.Enums;
-using DragonFruit.Kaplan.ViewModels.Messages;
-using DynamicData.Binding;
-using Microsoft.Extensions.Logging;
-using Nito.AsyncEx;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.ViewModels
 {
-    public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad, ICanCloseWindow
+    public class RemovalProgressViewModel : ReactiveObject, IHandlesClosingEvent, IExecutesTaskPostLoad, ICanCloseWindow, IDisposable
     {
-        private readonly ILogger _logger = App.GetLogger<RemovalProgressViewModel>();
-        private readonly AsyncLock _lock = new();
-        private readonly PackageInstallationMode _mode;
-        private readonly CancellationTokenSource _cancellation = new();
+        private readonly PackageRemover _remover;
+        private readonly CancellationTokenSource _cancellation;
+
+        private readonly ObservableAsPropertyHelper<float> _progressValue;
+        private readonly ObservableAsPropertyHelper<string> _progressText;
         private readonly ObservableAsPropertyHelper<ISolidColorBrush> _progressColor;
 
-        private OperationState _status;
-        private int _currentPackageNumber;
-        private PackageRemovalTask _current;
+        private readonly ObservableAsPropertyHelper<PackageViewModel> _currentPackage;
+        private readonly ObservableAsPropertyHelper<PackageRemover.OperationState> _currentState;
 
-        public RemovalProgressViewModel(IEnumerable<Package> packages, PackageInstallationMode mode)
+        public RemovalProgressViewModel(PackageRemover remover, CancellationTokenSource cts = null)
         {
-            _mode = mode;
-            _status = OperationState.Pending;
-            _progressColor = this.WhenValueChanged(x => x.Status).Select(x => x switch
-            {
-                OperationState.Pending => Brushes.Gray,
-                OperationState.Running => Brushes.DodgerBlue,
-                OperationState.Errored => Brushes.Red,
-                OperationState.Completed => Brushes.Green,
-                OperationState.Canceled => Brushes.DarkGray,
+            _remover = remover;
+            _cancellation = cts ?? new CancellationTokenSource();
 
-                _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
-            }).ToProperty(this, x => x.ProgressColor);
+            var currentPackage = Observable.FromEventPattern<EventHandler<Package>, Package>(h => remover.CurrentPackageChanged += h, h => remover.CurrentPackageChanged -= h)
+                .Select(static x => x.EventArgs);
 
-            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested, x => x.Status)
+            var currentPackageProgress = Observable.FromEventPattern<EventHandler<DeploymentProgress>, DeploymentProgress>(h => remover.CurrentPackageRemovalProgressChanged += h, h => remover.CurrentPackageRemovalProgressChanged -= h)
+                .StartWith(new EventPattern<DeploymentProgress>(null, remover.CurrentPackageRemovalProgress))
+                .Select(static x => x.EventArgs);
+
+            _currentPackage = currentPackage
+                .Select(static x => new PackageViewModel(x))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Select(x => !x.Item1 && x.Item2 == OperationState.Running);
+                .ToProperty(this, x => x.Current);
 
-            Packages = packages.ToList();
+            var state = Observable.FromEventPattern<EventHandler<PackageRemover.OperationState>, PackageRemover.OperationState>(h => remover.StateChanged += h, h => remover.StateChanged -= h)
+                .StartWith(new EventPattern<PackageRemover.OperationState>(null, remover.State))
+                .Select(static x => x.EventArgs);
+
+            _currentState = state.ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.CurrentState);
+            _progressValue = currentPackage.CombineLatest(currentPackageProgress)
+                // don't add to index, we only want processed packages up until this point
+                .Select(x =>
+                {
+                    var singlePackagePercentage = 1f / remover.TotalPackages;
+                    return remover.CurrentIndex * singlePackagePercentage + x.Second.percentage / 100f * singlePackagePercentage;
+                })
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.ProgressValue);
+
+            _progressColor = state.Select(static x => x switch
+                {
+                    PackageRemover.OperationState.Pending => Brushes.Gray,
+                    PackageRemover.OperationState.Running => Brushes.DodgerBlue,
+                    PackageRemover.OperationState.Errored => Brushes.Red,
+                    PackageRemover.OperationState.Completed => Brushes.Green,
+                    PackageRemover.OperationState.Canceled => Brushes.DarkGray,
+
+                    _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
+                })
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.ProgressColor);
+
+            _progressText = currentPackageProgress.CombineLatest(currentPackage).Select(static x => x.First.state switch
+                {
+                    DeploymentProgressState.Queued => $"Removing {x.Second.DisplayName}: Pending",
+                    DeploymentProgressState.Processing when x.First.percentage == 100 => $"Removing {x.Second.DisplayName} Complete",
+                    DeploymentProgressState.Processing when x.First.percentage > 0 => $"Removing {x.Second.DisplayName} ({x.First.percentage}% Complete)",
+
+                    _ => $"Removing {x.Second.DisplayName}"
+                })
+                .ToProperty(this, x => x.ProgressText);
+
+            var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested)
+                .CombineLatest(state)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Select(static x => !x.Item1 && x.Item2 == PackageRemover.OperationState.Running);
+
             RequestCancellation = ReactiveCommand.Create(CancelOperation, canCancelOperation);
         }
 
         public event Action CloseRequested;
 
-        public PackageRemovalTask Current
-        {
-            get => _current;
-            private set => this.RaiseAndSetIfChanged(ref _current, value);
-        }
+        public PackageViewModel Current => _currentPackage.Value;
+        public PackageRemover.OperationState CurrentState => _currentState.Value;
 
-        public int CurrentPackageNumber
-        {
-            get => _currentPackageNumber;
-            private set => this.RaiseAndSetIfChanged(ref _currentPackageNumber, value);
-        }
-
-        public OperationState Status
-        {
-            get => _status;
-            private set => this.RaiseAndSetIfChanged(ref _status, value);
-        }
-
-        public bool CancellationRequested => _cancellation.IsCancellationRequested;
-
+        public float ProgressValue => _progressValue.Value;
+        public string ProgressText => _progressText.Value;
         public ISolidColorBrush ProgressColor => _progressColor.Value;
 
-        public IReadOnlyList<Package> Packages { get; }
-
+        public bool CancellationRequested => _cancellation.IsCancellationRequested;
         public ICommand RequestCancellation { get; }
 
         private void CancelOperation()
@@ -92,70 +110,25 @@ namespace DragonFruit.Kaplan.ViewModels
 
         void IHandlesClosingEvent.OnClose(CancelEventArgs args)
         {
-            args.Cancel = Status == OperationState.Running;
+            args.Cancel = _remover.State == PackageRemover.OperationState.Running;
         }
 
         async Task IExecutesTaskPostLoad.Perform()
         {
-            _logger.LogInformation("Removal process started");
-            _logger.LogDebug("Waiting for lock access");
+            // waits for the process to end
+            await _remover.RemovePackagesAsync(_cancellation.Token);
 
-            using (await _lock.LockAsync(_cancellation.Token).ConfigureAwait(false))
+            // auto close if completed and not cancelled
+            if (!_cancellation.IsCancellationRequested && _remover.State == PackageRemover.OperationState.Completed)
             {
-                Status = OperationState.Running;
-
-                var manager = new PackageManager();
-
-                for (var i = 0; i < Packages.Count; i++)
-                {
-                    if (CancellationRequested)
-                    {
-                        break;
-                    }
-
-                    CurrentPackageNumber = i + 1;
-                    Current = new PackageRemovalTask(manager, Packages[i], _mode);
-
-                    try
-                    {
-                        _logger.LogInformation("Starting removal of {packageId}", Current.Package.Id);
-
-#if DRY_RUN
-                        await Task.Delay(1000, _cancellation.Token).ConfigureAwait(false);
-#else
-                        await Current.RemoveAsync(_cancellation.Token).ConfigureAwait(false);
-#endif
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        _logger.LogInformation("Package removal cancelled by user (stopped at {packageId})", Current.Package.Id);
-                    }
-                    catch (Exception ex)
-                    {
-                        Status = OperationState.Errored;
-                        _logger.LogError(ex, "Package removal failed: {err}", ex.Message);
-
-                        break;
-                    }
-                }
+                await Task.Delay(1000).ConfigureAwait(false);
+                CloseRequested?.Invoke();
             }
-
-            Status = CancellationRequested ? OperationState.Canceled : OperationState.Completed;
-            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
-
-            _logger.LogInformation("Package removal process ended: {state}", Status);
-
-            await Task.Delay(1000).ConfigureAwait(false);
-            CloseRequested?.Invoke();
         }
-    }
 
-    public enum OperationState
-    {
-        Pending,
-        Running,
-        Errored,
-        Completed,
-        Canceled
+        public void Dispose()
+        {
+            _cancellation?.Dispose();
+        }
     }
 }
