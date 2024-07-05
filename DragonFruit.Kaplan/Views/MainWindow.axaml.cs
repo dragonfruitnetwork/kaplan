@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
@@ -12,13 +13,14 @@ using ReactiveUI;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class MainWindow : AppWindow
+    public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
     {
         private readonly IEnumerable<IDisposable> _messageListeners;
 
         public MainWindow()
         {
             InitializeComponent();
+            this.WhenActivated(action => action(ViewModel!.BeginRemovalInteraction.RegisterHandler(OpenProgressDialog)));
 
             TransparencyLevelHint = Program.TransparencyLevels;
 
@@ -27,20 +29,19 @@ namespace DragonFruit.Kaplan.Views
 
             _messageListeners = new[]
             {
-                MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(OpenProgressDialog),
                 MessageBus.Current.Listen<ShowAboutWindowEventArgs>().Subscribe(_ => new About().ShowDialog(this))
             };
         }
 
-        private async void OpenProgressDialog(UninstallEventArgs args)
+        private async Task OpenProgressDialog(InteractionContext<RemovalProgressViewModel, PackageRemover.OperationState> args)
         {
             var window = new RemovalProgress
             {
-                DataContext = new RemovalProgressViewModel(args.Packages, args.Mode)
+                DataContext = args.Input
             };
 
-            await window.ShowDialog(this).ConfigureAwait(false);
-            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+            await window.ShowDialog(this);
+            args.SetOutput(args.Input.CurrentState);
         }
 
         private void PackageListPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
