@@ -20,7 +20,7 @@ jobs:
           dotnet tool install --global JetBrains.ReSharper.GlobalTools
 
       - name: InspectCode
-        run: jb inspectcode DragonFruit.Kaplan.sln --output=inspectcode.sarif --verbosity=WARN --no-build
+        run: jb inspectcode DragonFruit.Kaplan.sln --output=inspectcode.sarif --severity=WARNING --properties:Configuration=Release
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
