@@ -19,13 +19,13 @@ jobs:
         arch: [win10-x64, win10-arm64]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: microsoft/setup-msbuild@v1.1
-      - uses: actions/setup-dotnet@v2
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             6.0.x
-            7.0.x
+            8.0.x
           
       - name: Setup NuGet
         run: dotnet nuget add source --username github --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dragonfruitnetwork/index.json"
