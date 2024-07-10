@@ -12,18 +12,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
+          dotnet-version: '8.0.x'
 
       - name: Restore Project/Tools
         run: |
           dotnet restore
-          dotnet tool install --global NVika
           dotnet tool install --global JetBrains.ReSharper.GlobalTools
 
       - name: InspectCode
-        run: jb inspectcode DragonFruit.Kaplan.sln --output=inspectcodereport.xml --verbosity=WARN --no-build
+        run: jb inspectcode DragonFruit.Kaplan.sln --output=inspectcode.sarif --verbosity=WARN --no-build
 
-      - name: Vika
-        run: nvika parsereport "${{github.workspace}}/inspectcodereport.xml"
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: inspectcode.sarif
+          category: InspectCode
