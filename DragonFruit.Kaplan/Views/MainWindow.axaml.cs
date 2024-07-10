@@ -1,21 +1,18 @@
 // Kaplan Copyright (c) DragonFruit Network <inbox@dragonfruit.network>
 // Licensed under Apache-2. Refer to the LICENSE file for more info
 
-using System;
-using System.Collections.Generic;
+using System.Reactive;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
-using DragonFruit.Kaplan.ViewModels.Messages;
 using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class MainWindow : AppWindow
+    public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
     {
-        private readonly IEnumerable<IDisposable> _messageListeners;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -25,22 +22,26 @@ namespace DragonFruit.Kaplan.Views
             TitleBar.ExtendsContentIntoTitleBar = true;
             TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
 
-            _messageListeners = new[]
-            {
-                MessageBus.Current.Listen<UninstallEventArgs>().Subscribe(OpenProgressDialog),
-                MessageBus.Current.Listen<ShowAboutWindowEventArgs>().Subscribe(_ => new About().ShowDialog(this))
-            };
+            this.WhenActivated(action => action(ViewModel!.AboutPageInteraction.RegisterHandler(OpenAboutPage)));
+            this.WhenActivated(action => action(ViewModel!.BeginRemovalInteraction.RegisterHandler(OpenProgressDialog)));
         }
 
-        private async void OpenProgressDialog(UninstallEventArgs args)
+        private async Task OpenAboutPage(InteractionContext<Unit, Unit> ctx)
+        {
+            await new About().ShowDialog(this).ConfigureAwait(false);
+
+            ctx.SetOutput(Unit.Default);
+        }
+
+        private async Task OpenProgressDialog(InteractionContext<RemovalProgressViewModel, PackageRemover.OperationState> ctx)
         {
             var window = new RemovalProgress
             {
-                DataContext = new RemovalProgressViewModel(args.Packages, args.Mode)
+                DataContext = ctx.Input
             };
 
-            await window.ShowDialog(this).ConfigureAwait(false);
-            MessageBus.Current.SendMessage(new PackageRefreshEventArgs());
+            await window.ShowDialog(this);
+            ctx.SetOutput(ctx.Input.CurrentState);
         }
 
         private void PackageListPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -54,16 +55,6 @@ namespace DragonFruit.Kaplan.Views
             if (sender is ListBox box && box.Scroll != null)
             {
                 box.Scroll.Offset = Vector.Zero;
-            }
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-
-            foreach (var messageListener in _messageListeners)
-            {
-                messageListener.Dispose();
             }
         }
     }

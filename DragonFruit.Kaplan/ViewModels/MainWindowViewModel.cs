@@ -5,15 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Management.Deployment;
 using Avalonia.Threading;
 using DragonFruit.Kaplan.ViewModels.Enums;
-using DragonFruit.Kaplan.ViewModels.Messages;
 using DynamicData;
 using DynamicData.Binding;
 using Microsoft.Extensions.Logging;
@@ -26,7 +28,6 @@ namespace DragonFruit.Kaplan.ViewModels
         private readonly ILogger _logger;
         private readonly WindowsIdentity _currentUser;
         private readonly PackageManager _packageManager;
-        private readonly IDisposable _packageRefreshListener;
 
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
@@ -38,20 +39,18 @@ namespace DragonFruit.Kaplan.ViewModels
         {
             _packageManager = new PackageManager();
             _currentUser = WindowsIdentity.GetCurrent();
-
             _logger = App.GetLogger<MainWindowViewModel>();
 
             AvailablePackageModes = _currentUser.User != null
                 ? Enum.GetValues<PackageInstallationMode>()
-                : new[] {PackageInstallationMode.Machine};
+                : [PackageInstallationMode.Machine];
 
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet()
                 .ToCollection()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Select(x => x.Any());
+                .Select(x => x.Count != 0);
 
-            _packageRefreshListener = MessageBus.Current.Listen<UninstallEventArgs>().ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => RefreshPackagesImpl());
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Select(q =>
@@ -66,7 +65,10 @@ namespace DragonFruit.Kaplan.ViewModels
             RefreshPackages = ReactiveCommand.CreateFromTask(RefreshPackagesImpl);
             RemovePackages = ReactiveCommand.Create(RemovePackagesImpl, packagesSelected);
             ClearSelection = ReactiveCommand.Create(() => SelectedPackages.Clear(), packagesSelected);
-            ShowAbout = ReactiveCommand.Create(() => MessageBus.Current.SendMessage(new ShowAboutWindowEventArgs()));
+            ShowAbout = ReactiveCommand.CreateFromTask(() => AboutPageInteraction.Handle(Unit.Default).ToTask());
+
+            AboutPageInteraction = new Interaction<Unit, Unit>();
+            BeginRemovalInteraction = new Interaction<RemovalProgressViewModel, PackageRemover.OperationState>();
 
             // auto refresh the package list if the user package filter switch is changed
             this.WhenValueChanged(x => x.PackageMode).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ => RefreshPackages.Execute(null));
@@ -106,6 +108,9 @@ namespace DragonFruit.Kaplan.ViewModels
         public ICommand ClearSelection { get; }
         public ICommand RemovePackages { get; }
         public ICommand RefreshPackages { get; }
+
+        public Interaction<Unit, Unit> AboutPageInteraction { get; }
+        public Interaction<RemovalProgressViewModel, PackageRemover.OperationState> BeginRemovalInteraction { get; }
 
         private async Task RefreshPackagesImpl()
         {
@@ -147,20 +152,26 @@ namespace DragonFruit.Kaplan.ViewModels
             });
         }
 
-        private void RemovePackagesImpl()
+        private async Task RemovePackagesImpl()
         {
-            var packages = SelectedPackages.Select(x => x.Package).ToList();
-            var args = new UninstallEventArgs(packages, PackageMode);
+            var remover = new PackageRemover(PackageMode, _packageManager, SelectedPackages.Select(x => x.Package).ToList());
+            var cts = new CancellationTokenSource();
 
-            _logger.LogInformation("Starting removal of {x} packages", packages.Count);
+            using (var model = new RemovalProgressViewModel(remover, cts))
+            {
+                _logger.LogInformation("Starting removal of {x} packages", remover.TotalPackages);
+                _ = remover.RemovePackagesAsync(cts.Token);
 
-            MessageBus.Current.SendMessage(args);
+                await BeginRemovalInteraction.Handle(model);
+            }
+
+            // reload packages after interaction ends
+            RefreshPackages.Execute(null);
         }
 
         public void Dispose()
         {
             _displayedPackages?.Dispose();
-            _packageRefreshListener?.Dispose();
         }
     }
 }

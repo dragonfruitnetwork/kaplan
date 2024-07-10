@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
         x:DataType="vm:RemovalProgressViewModel"
-        Width="500"
+        Width="650"
         Height="100"
         CanResize="False"
         Title="Remove Packages"
@@ -27,22 +27,21 @@
                 <ColumnDefinition Width="15" /> <!-- spacing -->
                 <ColumnDefinition Width="4*" />
                 <ColumnDefinition Width="15" /> <!-- spacing -->
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
 
-            <Image DockPanel.Dock="Left" Source="{Binding Current.Package.Logo}" Height="40" Width="40" />
+            <Image DockPanel.Dock="Left" Source="{Binding Current.Logo}" Height="40" Width="40" />
 
             <ProgressBar Grid.Row="0" Grid.Column="2"
-                         Minimum="0" Background="LightGray"
-                         Maximum="{Binding Packages.Count}"
-                         Foreground="{Binding ProgressColor}"
-                         Value="{Binding CurrentPackageNumber}" />
+                         Minimum="0" Maximum="1" Background="LightGray"
+                         Value="{Binding ProgressValue}"
+                         Foreground="{Binding ProgressColor}" />
 
             <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom"
-                       TextTrimming="WordEllipsis" Text="{Binding Current.Status}" />
+                       TextTrimming="WordEllipsis" Text="{Binding ProgressText}" />
 
             <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
-                    Content="Cancel" VerticalAlignment="Center" Command="{Binding RequestCancellation}" />
+                    Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Command="{Binding RequestCancellation}" />
         </Grid>
     </Window.Content>
 </Window>

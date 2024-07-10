@@ -21,7 +21,7 @@
 
             <TextBlock DockPanel.Dock="Bottom" FontSize="12" Foreground="DarkGray"
                        HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                Copyright © 2023 DragonFruit Network
+                Copyright © 2024 DragonFruit Network
             </TextBlock>
 
             <TextBox x:Name="LicenseContents" DockPanel.Dock="Top"
