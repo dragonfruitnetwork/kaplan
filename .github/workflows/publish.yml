@@ -47,7 +47,8 @@ jobs:
           certificateContents: ${{ secrets.DRAGONFRUIT_CERT_CONTENTS }}
           certificatePassword: ${{ secrets.DRAGONFRUIT_CERT_PASSWORD }}
         run: |
-          echo $env:certificateContents > $env:USERPROFILE\dragonfruit.pfx
+          echo $env:certificateContents > $env:USERPROFILE\dragonfruit.pfx.b64
+          certutil -decode $env:USERPROFILE\dragonfruit.pfx.b64 $env:USERPROFILE\dragonfruit.pfx
 
           $signTool = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe"
           & $signTool sign /f $env:USERPROFILE\dragonfruit.pfx /p $env:certificatePassword /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /as /v ${{ env.build-output }}\DragonFruit.Kaplan.exe
