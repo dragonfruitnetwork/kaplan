@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [win10-x64, win10-arm64]
+        arch: [win-x64, win-arm64]
 
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
