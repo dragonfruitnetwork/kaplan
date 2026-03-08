@@ -3,8 +3,7 @@
 
 using System;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace DragonFruit.Kaplan
 {
@@ -26,6 +25,6 @@ namespace DragonFruit.Kaplan
             AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(_ => { });
     }
 }

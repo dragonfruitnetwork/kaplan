@@ -4,6 +4,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
+using ReactiveUI.Avalonia;
 using SukiUI.Controls;
 
 #nullable enable
@@ -33,7 +34,7 @@ namespace DragonFruit.Kaplan
         {
             // This WhenActivated block calls ViewModel's WhenActivated
             // block if the ViewModel implements IActivatableViewModel.
-            this.WhenActivated(disposables => { });
+            this.WhenActivated(_ => { });
         }
 
         /// <summary>

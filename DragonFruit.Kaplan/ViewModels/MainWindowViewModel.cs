@@ -20,6 +20,7 @@ using DynamicData;
 using DynamicData.Binding;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
+using ReactiveUI.Extensions;
 
 namespace DragonFruit.Kaplan.ViewModels
 {
@@ -48,11 +49,12 @@ namespace DragonFruit.Kaplan.ViewModels
             // create observables
             var packagesSelected = SelectedPackages.ToObservableChangeSet()
                 .ToCollection()
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Select(x => x.Count != 0);
 
             _displayedPackages = this.WhenAnyValue(x => x.DiscoveredPackages, x => x.SearchQuery, x => x.SelectedPackages)
-                .ObserveOn(RxApp.TaskpoolScheduler)
+                .ObserveOn(RxSchedulers.TaskpoolScheduler)
+                .DebounceImmediate(TimeSpan.FromMilliseconds(250))
                 .Select(q =>
                 {
                     // because filters remove selected entries, the search will split the listing into two groups, with the matches showing above
@@ -71,7 +73,7 @@ namespace DragonFruit.Kaplan.ViewModels
             BeginRemovalInteraction = new Interaction<RemovalProgressViewModel, PackageRemover.OperationState>();
 
             // auto refresh the package list if the user package filter switch is changed
-            this.WhenValueChanged(x => x.PackageMode).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ => RefreshPackages.Execute(null));
+            this.WhenValueChanged(x => x.PackageMode).ObserveOn(RxSchedulers.TaskpoolScheduler).Subscribe(_ => RefreshPackages.Execute(null));
         }
 
         public IEnumerable<PackageInstallationMode> AvailablePackageModes { get; }

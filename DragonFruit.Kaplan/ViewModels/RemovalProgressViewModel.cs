@@ -43,14 +43,14 @@ namespace DragonFruit.Kaplan.ViewModels
 
             _currentPackage = currentPackage
                 .Select(static x => new PackageViewModel(x))
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.Current);
 
             var state = Observable.FromEventPattern<EventHandler<PackageRemover.OperationState>, PackageRemover.OperationState>(h => remover.StateChanged += h, h => remover.StateChanged -= h)
                 .StartWith(new EventPattern<PackageRemover.OperationState>(null, remover.State))
                 .Select(static x => x.EventArgs);
 
-            _currentState = state.ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.CurrentState);
+            _currentState = state.ObserveOn(RxSchedulers.MainThreadScheduler).ToProperty(this, x => x.CurrentState);
             _progressValue = currentPackage.CombineLatest(currentPackageProgress)
                 .Select(x =>
                 {
@@ -58,7 +58,7 @@ namespace DragonFruit.Kaplan.ViewModels
                     var singlePackagePercentage = 1f / remover.TotalPackages;
                     return remover.CurrentIndex * singlePackagePercentage + x.Second.percentage / 100f * singlePackagePercentage;
                 })
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.ProgressValue);
 
             _progressColor = state.Select(static x => x switch
@@ -71,7 +71,7 @@ namespace DragonFruit.Kaplan.ViewModels
 
                     _ => throw new ArgumentOutOfRangeException(nameof(x), x, null)
                 })
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.ProgressColor);
 
             _progressText = currentPackageProgress.CombineLatest(currentPackage).Select(static x => x.First.state switch
@@ -86,7 +86,7 @@ namespace DragonFruit.Kaplan.ViewModels
 
             var canCancelOperation = this.WhenAnyValue(x => x.CancellationRequested)
                 .CombineLatest(state)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Select(static x => !x.Item1 && x.Item2 == PackageRemover.OperationState.Running);
 
             RequestCancellation = ReactiveCommand.Create(CancelOperation, canCancelOperation);
