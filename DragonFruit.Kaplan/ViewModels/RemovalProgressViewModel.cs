@@ -35,9 +35,11 @@ namespace DragonFruit.Kaplan.ViewModels
             var currentPackage = Observable.FromEventPattern<EventHandler<Package>, Package>(h => remover.CurrentPackageChanged += h, h => remover.CurrentPackageChanged -= h)
                 .Select(static x => x.EventArgs);
 
+            // progress updates throttled to 5Hz to avoid UI overload
             var currentPackageProgress = Observable.FromEventPattern<EventHandler<DeploymentProgress>, DeploymentProgress>(h => remover.CurrentPackageRemovalProgressChanged += h, h => remover.CurrentPackageRemovalProgressChanged -= h)
                 .StartWith(new EventPattern<DeploymentProgress>(null, remover.CurrentPackageRemovalProgress))
-                .Select(static x => x.EventArgs);
+                .Select(static x => x.EventArgs)
+                .Throttle(TimeSpan.FromMilliseconds(200));
 
             _currentPackage = currentPackage
                 .Select(static x => new PackageViewModel(x))
@@ -50,9 +52,9 @@ namespace DragonFruit.Kaplan.ViewModels
 
             _currentState = state.ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.CurrentState);
             _progressValue = currentPackage.CombineLatest(currentPackageProgress)
-                // don't add to index, we only want processed packages up until this point
                 .Select(x =>
                 {
+                    // don't add to index, we only want processed packages up until this point
                     var singlePackagePercentage = 1f / remover.TotalPackages;
                     return remover.CurrentIndex * singlePackagePercentage + x.Second.percentage / 100f * singlePackagePercentage;
                 })
