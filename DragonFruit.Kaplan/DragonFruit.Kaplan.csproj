@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Platforms>AnyCPU</Platforms>
         <OutputType>WinExe</OutputType>
         <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
         <Configurations>Debug;Release;DryRun</Configurations>
@@ -16,18 +15,33 @@
         <PublishTrimmed>true</PublishTrimmed>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
+
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <EnableUnsafeUTF7Encoding>False</EnableUnsafeUTF7Encoding>
         <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
         <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-        <HttpActivityPropagationSupport>False</HttpActivityPropagationSupport>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <EnableUnsafeBinaryFormatterSerialization>False</EnableUnsafeBinaryFormatterSerialization>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+        <EventSourceSupport>false</EventSourceSupport>
+        <Http3Support>false</Http3Support>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+
+        <!-- needed because SukiUI has a dictionary with some cultureinfo instances inside -->
+        <!-- can be enabled once https://github.com/kikipoulet/SukiUI/issues/528 has been resoved -->
+        <InvariantGlobalization>false</InvariantGlobalization>
+
+        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+        <MetricsSupport>false</MetricsSupport>
+        <UseSystemResourceKeys>false</UseSystemResourceKeys>
+        <XmlResolverIsNetworkingEnabledByDefault>false</XmlResolverIsNetworkingEnabledByDefault>
     </PropertyGroup>
 
     <ItemGroup>
-        <TrimmerRootAssembly Include="DragonFruit.Kaplan" />
         <TrimmerRootAssembly Include="SukiUI" />
+        <TrimmerRootAssembly Include="DragonFruit.Kaplan" />
     </ItemGroup>
 
     <ItemGroup>
