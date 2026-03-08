@@ -13,8 +13,8 @@
     <PropertyGroup>
         <TrimMode>full</TrimMode>
         <PublishTrimmed>true</PublishTrimmed>
-        <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
+        <PublishReadyToRun>false</PublishReadyToRun>
 
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
