@@ -5,7 +5,7 @@
         <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
         <Configurations>Debug;Release;DryRun</Configurations>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <TargetFramework>net8.0-windows10.0.19041</TargetFramework>
+        <TargetFramework>net10.0-windows10.0.19041</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 
         <DefineConstants Condition="'$(Configuration)' != 'Release'">$(Constants);DRY_RUN</DefineConstants>
