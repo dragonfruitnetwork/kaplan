@@ -32,10 +32,6 @@ namespace DragonFruit.Kaplan.ViewModels
 
         private readonly ObservableAsPropertyHelper<IEnumerable<PackageViewModel>> _displayedPackages;
 
-        private string _searchQuery = string.Empty;
-        private PackageInstallationMode _packageMode = PackageInstallationMode.User;
-        private IReadOnlyCollection<PackageViewModel> _discoveredPackages = Array.Empty<PackageViewModel>();
-
         public MainWindowViewModel()
         {
             _packageManager = new PackageManager();
@@ -78,33 +74,33 @@ namespace DragonFruit.Kaplan.ViewModels
 
         public IEnumerable<PackageInstallationMode> AvailablePackageModes { get; }
 
-        public ObservableCollection<PackageViewModel> SelectedPackages { get; } = new();
+        public ObservableCollection<PackageViewModel> SelectedPackages { get; } = [];
 
         public IEnumerable<PackageViewModel> DisplayedPackages => _displayedPackages.Value;
 
         private IReadOnlyCollection<PackageViewModel> DiscoveredPackages
         {
-            get => _discoveredPackages;
-            set => this.RaiseAndSetIfChanged(ref _discoveredPackages, value);
-        }
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        } = [];
 
         /// <summary>
         /// Gets or sets whether the <see cref="DiscoveredPackages"/> collection should show packages installed for the selected user
         /// </summary>
         public PackageInstallationMode PackageMode
         {
-            get => _packageMode;
-            set => this.RaiseAndSetIfChanged(ref _packageMode, value);
-        }
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        } = PackageInstallationMode.User;
 
         /// <summary>
         /// Gets or sets the search query used to filter <see cref="DisplayedPackages"/>
         /// </summary>
         public string SearchQuery
         {
-            get => _searchQuery;
-            set => this.RaiseAndSetIfChanged(ref _searchQuery, value);
-        }
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        } = string.Empty;
 
         public ICommand ShowAbout { get; }
         public ICommand ClearSelection { get; }

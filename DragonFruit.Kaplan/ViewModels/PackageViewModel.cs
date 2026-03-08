@@ -19,7 +19,6 @@ namespace DragonFruit.Kaplan.ViewModels
     /// </summary>
     public class PackageViewModel : ReactiveObject
     {
-        private IImage _logo;
         private Task _logoLoadTask;
 
         public PackageViewModel(Package package)
@@ -36,9 +35,9 @@ namespace DragonFruit.Kaplan.ViewModels
                 // defer image loading until someone requests it.
                 _logoLoadTask ??= LoadIconStream();
 
-                return _logo;
+                return field;
             }
-            private set => this.RaiseAndSetIfChanged(ref _logo, value);
+            private set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public string Id => Package.Id.Name;

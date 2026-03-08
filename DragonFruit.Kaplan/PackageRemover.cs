@@ -17,10 +17,6 @@ namespace DragonFruit.Kaplan
         private readonly PackageManager _manager;
         private readonly IReadOnlyList<Package> _packages;
 
-        private Package _currentPackage;
-        private DeploymentProgress _currentPackageRemovalProgress;
-
-        private OperationState _state;
         private Task<int> _currentRemovalTask;
 
         public PackageRemover(PackageInstallationMode mode, PackageManager manager, IReadOnlyList<Package> packages)
@@ -49,32 +45,32 @@ namespace DragonFruit.Kaplan
 
         public OperationState State
         {
-            get => _state;
+            get;
             private set
             {
-                if (_state == value) return;
+                if (field == value) return;
 
-                _state = value;
+                field = value;
                 StateChanged?.Invoke(this, value);
             }
         }
 
         public Package CurrentPackage
         {
-            get => _currentPackage;
+            get;
             private set
             {
-                _currentPackage = value;
+                field = value;
                 CurrentPackageChanged?.Invoke(this, value);
             }
         }
 
         public DeploymentProgress CurrentPackageRemovalProgress
         {
-            get => _currentPackageRemovalProgress;
+            get;
             private set
             {
-                _currentPackageRemovalProgress = value;
+                field = value;
                 CurrentPackageRemovalProgressChanged?.Invoke(this, value);
             }
         }
