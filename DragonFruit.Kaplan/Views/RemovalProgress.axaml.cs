@@ -5,10 +5,11 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using DragonFruit.Kaplan.ViewModels;
+using SukiUI.Controls;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class RemovalProgress : Window
+    public partial class RemovalProgress : SukiWindow
     {
         public RemovalProgress()
         {

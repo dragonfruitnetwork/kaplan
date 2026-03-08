@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using DragonFruit.Kaplan.ViewModels;
-using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
 
 namespace DragonFruit.Kaplan.Views
@@ -17,23 +16,18 @@ namespace DragonFruit.Kaplan.Views
         {
             InitializeComponent();
 
-            TransparencyLevelHint = Program.TransparencyLevels;
-
-            TitleBar.ExtendsContentIntoTitleBar = true;
-            TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
-
             this.WhenActivated(action => action(ViewModel!.AboutPageInteraction.RegisterHandler(OpenAboutPage)));
             this.WhenActivated(action => action(ViewModel!.BeginRemovalInteraction.RegisterHandler(OpenProgressDialog)));
         }
 
-        private async Task OpenAboutPage(InteractionContext<Unit, Unit> ctx)
+        private async Task OpenAboutPage(IInteractionContext<Unit, Unit> ctx)
         {
             await new About().ShowDialog(this).ConfigureAwait(false);
 
             ctx.SetOutput(Unit.Default);
         }
 
-        private async Task OpenProgressDialog(InteractionContext<RemovalProgressViewModel, PackageRemover.OperationState> ctx)
+        private async Task OpenProgressDialog(IInteractionContext<RemovalProgressViewModel, PackageRemover.OperationState> ctx)
         {
             var window = new RemovalProgress
             {

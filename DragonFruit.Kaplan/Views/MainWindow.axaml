@@ -1,116 +1,101 @@
-<windowing:AppWindow xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
-        xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-        xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="DragonFruit.Kaplan.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
-        MinHeight="600" MinWidth="800" Background="{x:Null}"
-        Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
+<suki:SukiWindow xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:kaplan="clr-namespace:DragonFruit.Kaplan"
+                 xmlns:suki="https://github.com/kikipoulet/SukiUI"
+                 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                 x:Class="DragonFruit.Kaplan.Views.MainWindow"
+                 x:DataType="vm:MainWindowViewModel"
+                 Icon="avares://DragonFruit.Kaplan/Assets/icon.ico"
+                 MinHeight="600" MinWidth="800" Height="725" Width="1000"
+                 Title="{Binding Source={x:Static kaplan:Program.AppTitle}}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Window.Content>
-        <Panel>
-            <ExperimentalAcrylicBorder IsHitTestVisible="False">
-                <ExperimentalAcrylicBorder.Material>
-                    <ExperimentalAcrylicMaterial
-                        BackgroundSource="None"
-                        TintColor="{DynamicResource SolidBackgroundFillColorBase}"
-                        TintOpacity="0.85"
-                        MaterialOpacity="0.5" />
-                </ExperimentalAcrylicBorder.Material>
-            </ExperimentalAcrylicBorder>
+    <DockPanel>
+        <!-- searchbar -->
+        <DockPanel DockPanel.Dock="Top" Margin="5">
+            <DockPanel.Styles>
+                <Style Selector="DockPanel > :is(Control)">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+                <Style Selector="Button">
+                    <Setter Property="ToolTip.Placement" Value="Bottom"/>
+                </Style>
+                <Style Selector="PathIcon">
+                    <Setter Property="Width" Value="12"/>
+                    <Setter Property="Height" Value="12"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </DockPanel.Styles>
 
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10">
-                    <Image Source="avares://DragonFruit.Kaplan/Assets/icon.ico" Height="16" Width="16" />
-                    <TextBlock Text="{Binding Source={x:Static kaplan:Program.AppTitle}}"/>
-                </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="5,0" Spacing="5">
+                <Button Command="{Binding RemovePackages}" Foreground="{DynamicResource AccentButtonBackground}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520Zm-400 0v520-520Zm200 316 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/>
+                        <TextBlock Text="{Binding SelectedPackages.Count, StringFormat='Remove {0} package(s)'}"/>
+                    </StackPanel>
+                </Button>
                 
-                <!-- searchbar -->
-                <DockPanel DockPanel.Dock="Top" Margin="5">
-                    <DockPanel.Styles>
-                        <Style Selector="DockPanel > :is(Control)">
-                            <Setter Property="Margin" Value="5,0" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                        </Style>
-                    </DockPanel.Styles>
+                <Button Command="{Binding RefreshPackages}" ToolTip.Tip="Refresh package list">
+                    <PathIcon Data="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-70q0-17 11.5-28.5T760-800q17 0 28.5 11.5T800-760v200q0 17-11.5 28.5T760-520H560q-17 0-28.5-11.5T520-560q0-17 11.5-28.5T560-600h128q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q68 0 124.5-34.5T692-367q8-14 22.5-19.5t29.5-.5q16 5 23 21t-1 30q-41 80-117 128t-169 48Z"/>
+                </Button>
 
-                    <controls:CommandBar DefaultLabelPosition="Right" DockPanel.Dock="Right" Background="Transparent">
-                        <controls:CommandBar.PrimaryCommands>
-                            <controls:CommandBarButton Label="Refresh Packages"
-                                                       IconSource="Refresh"
-                                                       Command="{Binding RefreshPackages}" />
+                <Button Command="{Binding ClearSelection}" ToolTip.Tip="Clear selection">
+                    <PathIcon Data="M643-261 513-131q-11 11-28 11t-28-11q-11-11-11-28t11-28l130-130-130-130q-11-11-11-28t11-28q11-11 28-11t28 11l130 130 130-130q11-11 28-11t28 11q11 11 11 28t-11 28L699-317l130 130q11 11 11 28t-11 28q-11 11-28 11t-28-11L643-261ZM131.5-771.5Q120-783 120-800t11.5-28.5Q143-840 160-840t28.5 11.5Q200-817 200-800t-11.5 28.5Q177-760 160-760t-28.5-11.5Zm160 0Q280-783 280-800t11.5-28.5Q303-840 320-840t28.5 11.5Q360-817 360-800t-11.5 28.5Q337-760 320-760t-28.5-11.5Zm160 0Q440-783 440-800t11.5-28.5Q463-840 480-840t28.5 11.5Q520-817 520-800t-11.5 28.5Q497-760 480-760t-28.5-11.5Zm160 0Q600-783 600-800t11.5-28.5Q623-840 640-840t28.5 11.5Q680-817 680-800t-11.5 28.5Q657-760 640-760t-28.5-11.5Zm160 0Q760-783 760-800t11.5-28.5Q783-840 800-840t28.5 11.5Q840-817 840-800t-11.5 28.5Q817-760 800-760t-28.5-11.5Zm-480 640Q280-143 280-160t11.5-28.5Q303-200 320-200t28.5 11.5Q360-177 360-160t-11.5 28.5Q337-120 320-120t-28.5-11.5Zm-160-480Q120-623 120-640t11.5-28.5Q143-680 160-680t28.5 11.5Q200-657 200-640t-11.5 28.5Q177-600 160-600t-28.5-11.5Zm0 160Q120-463 120-480t11.5-28.5Q143-520 160-520t28.5 11.5Q200-497 200-480t-11.5 28.5Q177-440 160-440t-28.5-11.5Zm0 160Q120-303 120-320t11.5-28.5Q143-360 160-360t28.5 11.5Q200-337 200-320t-11.5 28.5Q177-280 160-280t-28.5-11.5Zm0 160Q120-143 120-160t11.5-28.5Q143-200 160-200t28.5 11.5Q200-177 200-160t-11.5 28.5Q177-120 160-120t-28.5-11.5Zm640-480Q760-623 760-640t11.5-28.5Q783-680 800-680t28.5 11.5Q840-657 840-640t-11.5 28.5Q817-600 800-600t-28.5-11.5Z"/>
+                </Button>
 
-                            <controls:CommandBarButton Label="Clear Selection"
-                                                       IconSource="Clear"
-                                                       IsEnabled="True"
-                                                       Command="{Binding ClearSelection}" />
+                <Button Command="{Binding ShowAbout}" ToolTip.Tip="About">
+                    <PathIcon Data="M440-280h80v-240h-80v240Zm68.5-331.5Q520-623 520-640t-11.5-28.5Q497-680 480-680t-28.5 11.5Q440-657 440-640t11.5 28.5Q463-600 480-600t28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
+                </Button>
+            </StackPanel>
 
-                            <controls:CommandBarButton
-                                Label="{Binding SelectedPackages.Count, StringFormat='Remove {0} Packages'}"
-                                IconSource="Delete"
-                                Command="{Binding RemovePackages}"
-                                Foreground="{DynamicResource AccentButtonBackground}" />
-                        </controls:CommandBar.PrimaryCommands>
+            <ComboBox DockPanel.Dock="Left"
+                      SelectedItem="{Binding PackageMode}"
+                      ItemsSource="{Binding AvailablePackageModes}"
+                      Margin="5,0"/>
 
-                        <controls:CommandBar.SecondaryCommands>
-                            <controls:CommandBarButton Label="About Kaplan"
-                                                       IconSource="AllApps"
-                                                       Command="{Binding ShowAbout}" />
-                        </controls:CommandBar.SecondaryCommands>
-                    </controls:CommandBar>
+            <TextBox DockPanel.Dock="Left"
+                     Watermark="Search for packages..."
+                     Text="{Binding SearchQuery}"/>
+        </DockPanel>
 
-                    <ComboBox DockPanel.Dock="Left"
-                              SelectedItem="{Binding PackageMode}"
-                              ItemsSource="{Binding AvailablePackageModes}" />
+        <ListBox DockPanel.Dock="Top"
+                 SelectionMode="Multiple,Toggle"
+                 ItemsSource="{Binding DisplayedPackages}"
+                 SelectedItems="{Binding SelectedPackages}"
+                 PropertyChanged="PackageListPropertyChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel Margin="5,10">
+                        <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
+                               Source="{Binding Logo}" />
 
-                    <TextBox DockPanel.Dock="Left"
-                             Watermark="Enter search query..."
-                             Text="{Binding SearchQuery}" />
-                </DockPanel>
+                        <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
+                            <TextBlock DockPanel.Dock="Top"
+                                       FontSize="18"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="{Binding Name}" />
 
-                <ListBox DockPanel.Dock="Top"
-                         SelectionMode="Multiple,Toggle"
-                         ItemsSource="{Binding DisplayedPackages}"
-                         SelectedItems="{Binding SelectedPackages}"
-                         PropertyChanged="PackageListPropertyChanged">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel Margin="5,10">
-                                <Image DockPanel.Dock="Left" Height="30" Width="30" VerticalAlignment="Center"
-                                       Source="{Binding Logo}" />
+                            <!-- additional package info -->
+                            <TextBlock DockPanel.Dock="Top"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="{Binding Publisher}" Margin="0,2,0,0" />
 
-                                <DockPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="15,0,0,0">
-                                    <TextBlock DockPanel.Dock="Top"
-                                               FontSize="18"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="{Binding Name}" />
-
-                                    <!-- additional package info -->
-                                    <TextBlock DockPanel.Dock="Top"
-                                               FontSize="12"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="{Binding Publisher}" Margin="0,2,0,0" />
-
-                                    <TextBlock DockPanel.Dock="Top"
-                                               FontSize="10"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="{Binding Id}" Foreground="{DynamicResource TextFillColorDisabled}" />
-                                </DockPanel>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-        </Panel>
-    </Window.Content>
-</windowing:AppWindow>
+                            <TextBlock DockPanel.Dock="Top"
+                                       FontSize="10"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="{Binding Id}" Foreground="{DynamicResource TextFillColorDisabled}" />
+                        </DockPanel>
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</suki:SukiWindow>

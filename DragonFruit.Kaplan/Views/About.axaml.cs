@@ -3,14 +3,14 @@
 
 using System;
 using System.IO;
-using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using SukiUI.Controls;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class About : Window
+    public partial class About : SukiWindow
     {
         public About()
         {

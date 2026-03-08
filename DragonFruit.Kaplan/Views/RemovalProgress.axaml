@@ -1,35 +1,24 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
-        x:DataType="vm:RemovalProgressViewModel"
-        Width="650"
-        Height="100"
-        CanResize="False"
-        Title="Remove Packages"
-        WindowStartupLocation="CenterOwner">
+<suki:SukiWindow xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:vm="using:DragonFruit.Kaplan.ViewModels"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:suki="https://github.com/kikipoulet/SukiUI"
+                 mc:Ignorable="d"
+                 x:Class="DragonFruit.Kaplan.Views.RemovalProgress"
+                 x:DataType="vm:RemovalProgressViewModel"
+                 Width="650"
+                 Height="150"
+                 CanResize="False"
+                 Title="Package Removal"
+                 WindowStartupLocation="CenterOwner">
 
     <Design.DataContext>
         <vm:RemovalProgressViewModel />
     </Design.DataContext>
 
     <Window.Content>
-        <Grid Margin="25,20" VerticalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="15" /> <!-- spacing -->
-                <ColumnDefinition Width="4*" />
-                <ColumnDefinition Width="15" /> <!-- spacing -->
-                <ColumnDefinition Width="100" />
-            </Grid.ColumnDefinitions>
-
+        <Grid Margin="25,20" VerticalAlignment="Center" RowDefinitions="*,*" ColumnDefinitions="40,15,4*,15,100">
             <Image DockPanel.Dock="Left" Source="{Binding Current.Logo}" Height="40" Width="40" />
 
             <ProgressBar Grid.Row="0" Grid.Column="2"
@@ -41,7 +30,8 @@
                        TextTrimming="WordEllipsis" Text="{Binding ProgressText}" />
 
             <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
-                    Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Command="{Binding RequestCancellation}" />
+                    Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                    Command="{Binding RequestCancellation}" />
         </Grid>
     </Window.Content>
-</Window>
+</suki:SukiWindow>

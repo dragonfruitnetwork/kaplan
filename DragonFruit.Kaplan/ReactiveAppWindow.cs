@@ -3,9 +3,8 @@
 
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.ReactiveUI;
-using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
+using SukiUI.Controls;
 
 #nullable enable
 
@@ -22,7 +21,7 @@ namespace DragonFruit.Kaplan
     /// This is a version of the ReactiveUI <see cref="ReactiveWindow{TViewModel}"/> class modified to support <see cref="AppWindow"/>.
     /// See https://github.com/AvaloniaUI/Avalonia/blob/master/src/Avalonia.ReactiveUI/ReactiveWindow.cs for the original implementation.
     /// </remarks>
-    public class ReactiveAppWindow<TViewModel> : AppWindow, IViewFor<TViewModel> where TViewModel : class
+    public class ReactiveAppWindow<TViewModel> : SukiWindow, IViewFor<TViewModel> where TViewModel : class
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("AvaloniaProperty", "AVP1002", Justification = "Generic avalonia property is expected here.")]
         public static readonly StyledProperty<TViewModel?> ViewModelProperty = AvaloniaProperty.Register<ReactiveWindow<TViewModel>, TViewModel?>(nameof(ViewModel));

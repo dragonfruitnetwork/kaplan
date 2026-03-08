@@ -3,14 +3,14 @@
 
 using System;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using DragonFruit.Kaplan.ViewModels;
+using SukiUI.Controls;
 
 namespace DragonFruit.Kaplan.Views
 {
-    public partial class Welcome : Window
+    public partial class Welcome : SukiWindow
     {
         public Welcome()
         {
