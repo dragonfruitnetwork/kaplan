@@ -18,7 +18,7 @@
     </Design.DataContext>
 
     <Window.Content>
-        <Grid Margin="25,20" VerticalAlignment="Center" RowDefinitions="*,*" ColumnDefinitions="40,15,4*,15,100">
+        <Grid Margin="25,20" VerticalAlignment="Center" RowDefinitions="*,*" ColumnDefinitions="40,15,4*,15,Auto">
             <Image DockPanel.Dock="Left" Source="{Binding Current.Logo}" Height="40" Width="40" />
 
             <ProgressBar Grid.Row="0" Grid.Column="2"
@@ -26,12 +26,11 @@
                          Value="{Binding ProgressValue}"
                          Foreground="{Binding ProgressColor}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="2" DockPanel.Dock="Bottom"
-                       TextTrimming="WordEllipsis" Text="{Binding ProgressText}" />
+            <TextBlock Grid.Row="1" Grid.Column="2" TextTrimming="WordEllipsis" Text="{Binding ProgressText}" />
 
-            <Button Grid.Row="0" Grid.Column="4" DockPanel.Dock="Right"
-                    Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                    Command="{Binding RequestCancellation}" />
+            <Button Grid.Row="0" Grid.Column="4" Command="{Binding RequestCancellation}" ToolTip.Tip="Cancel">
+                <PathIcon Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center" Data="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+            </Button>
         </Grid>
     </Window.Content>
 </suki:SukiWindow>
