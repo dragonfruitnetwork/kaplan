@@ -1,8 +1,12 @@
 name: Publish
 
 on:
-  release:
-    types: [ published ]
+  workflow_dispatch: 
+    inputs: 
+      version:
+        type: string
+        required: true
+        description: "Version to publish (YYYY.mDD)"
 
 env:
   build-output: build-output
@@ -41,7 +45,7 @@ jobs:
         run: nuget-license -i DragonFruit.Kaplan\DragonFruit.Kaplan.csproj -o Table > DragonFruit.Kaplan\Assets\licences.txt
         
       - name: Build
-        run: dotnet publish -c Release -r ${{ matrix.arch }} -p:Version=${{ github.event.release.tag_name }} --self-contained -o ${{ env.build-output }} DragonFruit.Kaplan\DragonFruit.Kaplan.csproj
+        run: dotnet publish -c Release -r ${{ matrix.arch }} -p:Version=${{ inputs.version }} --self-contained -o ${{ env.build-output }} DragonFruit.Kaplan\DragonFruit.Kaplan.csproj
 
       - name: Sign
         env:
@@ -72,4 +76,8 @@ jobs:
       - name: Upload Artifact
         uses: softprops/action-gh-release@v2
         with:
+          draft: true
+          make_latest: true
+          generate_release_notes: true
+          tag_name: ${{ inputs.version }}
           files: ${{ env.build-output }}/${{ env.OUTPUT_FILENAME }}
