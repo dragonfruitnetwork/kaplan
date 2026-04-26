@@ -54,7 +54,7 @@ jobs:
           $signTool = Join-Path -Path ${env:ProgramFiles(x86)} -ChildPath "Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
           & $signTool sign /f $env:USERPROFILE\dragonfruit.pfx /p $env:certificatePassword /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /as /v ${{ env.build-output }}\DragonFruit.Kaplan.exe
           
-      - name: Dual-sign with new cert
+      - name: Dual-sign (new cert)
         env:
           certificateContents: ${{ secrets.DRAGONFRUIT_CERT_2026 }}
           certificatePassword: ${{ secrets.DRAGONFRUIT_CERT_2026_PASSWORD }}
