@@ -43,6 +43,7 @@ jobs:
 
       - name: Generate licences.txt
         run: nuget-license -i DragonFruit.Kaplan\DragonFruit.Kaplan.csproj -o Table > DragonFruit.Kaplan\Assets\licences.txt
+        continue-on-error: true
         
       - name: Build
         run: dotnet publish -c Release -r ${{ matrix.arch }} -p:Version=${{ inputs.version }} --self-contained -o ${{ env.build-output }} DragonFruit.Kaplan\DragonFruit.Kaplan.csproj
